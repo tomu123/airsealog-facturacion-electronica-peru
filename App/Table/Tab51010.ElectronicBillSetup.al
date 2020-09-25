@@ -17,12 +17,14 @@ table 51010 "EB Electronic Bill Setup"
         {
             Caption = 'Detraction Code';
             TableRelation = "Legal Document"."Legal No." where("Option Type" = const("Catalogue SUNAT"), "Type Code" = const('14'));
-            ValidateTableRelation = false;
+            //TableRelation = "Detraction Services Operation".Code where("Type Services/Operation" = const("Tipo Operacion"));
+            ValidateTableRelation = true;
         }
         field(51003; "EB Detrac. Goods/Services Code"; Code[20])
         {
             Caption = 'Detrac. Goods/Services Code';
-            TableRelation = "Legal Document"."Legal No." where("Option Type" = const("Catalogue SUNAT"), "Type Code" = const('15'));
+            //TableRelation = "Legal Document"."Legal No." where("Option Type" = const("Catalogue SUNAT"), "Type Code" = const('15'));
+            TableRelation = "Detraction Services Operation".Code where("Type Services/Operation" = const("Tipo Servicio"));
             ValidateTableRelation = false;
         }
         field(51004; "EB Detrac. National Bank Code"; Code[20])
