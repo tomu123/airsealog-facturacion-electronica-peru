@@ -602,10 +602,10 @@ codeunit 51015 "EB Billing Management"
             if SalesCrMemoLine.FindSet then begin
                 repeat
                     if SalesCrMemoHdr."Prices Including VAT" then
-                        AmtDiscount += AmtDiscount + Round(SalesCrMemoLine."Inv. Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
+                        AmtDiscount := AmtDiscount + Round(SalesCrMemoLine."Inv. Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
                     else
-                        AmtDiscount += AmtDiscount + SalesCrMemoLine."Inv. Discount Amount";
-                    TaxBase += TaxBase + SalesCrMemoLine."Line Amount";
+                        AmtDiscount := AmtDiscount + SalesCrMemoLine."Inv. Discount Amount";
+                    TaxBase := TaxBase + SalesCrMemoLine."Line Amount";
                 until SalesCrMemoLine.NEXT = 0;
             end;
             ReasonCode := SalesCrMemoHdr."EB Charge/Discount Code";//  " EB Charges Code or Discounts Code";
@@ -617,10 +617,10 @@ codeunit 51015 "EB Billing Management"
             if SalesInvLine.FindSet then begin
                 repeat
                     if SalesInvHeader."Prices Including VAT" then
-                        AmtDiscount += AmtDiscount + Round(SalesInvLine."Inv. Discount Amount" / (1 + SalesInvLine."VAT %" / 100), 0.01)
+                        AmtDiscount := AmtDiscount + Round(SalesInvLine."Inv. Discount Amount" / (1 + SalesInvLine."VAT %" / 100), 0.01)
                     else
-                        AmtDiscount += AmtDiscount + SalesInvLine."Inv. Discount Amount";
-                    TaxBase += TaxBase + SalesInvLine."Line Amount";
+                        AmtDiscount := AmtDiscount + SalesInvLine."Inv. Discount Amount";
+                    TaxBase := TaxBase + SalesInvLine."Line Amount";
                 until SalesInvLine.NEXT = 0;
             end;
             ReasonCode := SalesInvHeader."EB Charge/Discount Code";
@@ -643,10 +643,10 @@ codeunit 51015 "EB Billing Management"
             if SalesCrMemoLine.FindFirst() then begin
                 repeat
                     if SalesCrMemoHdr."Prices Including VAT" then
-                        DiscountAmount += DiscountAmount + Round(SalesCrMemoLine."Line Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
+                        DiscountAmount := DiscountAmount + Round(SalesCrMemoLine."Line Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
                     else
-                        DiscountAmount += DiscountAmount + SalesCrMemoLine."Line Discount Amount";
-                    TaxBase += TaxBase + SalesCrMemoLine."Line Amount";
+                        DiscountAmount := DiscountAmount + SalesCrMemoLine."Line Discount Amount";
+                    TaxBase := TaxBase + SalesCrMemoLine."Line Amount";
                 until SalesCrMemoLine.NEXT = 0;
             end;
         end else begin
@@ -658,10 +658,10 @@ codeunit 51015 "EB Billing Management"
             if SalesInvLine.FindSet then begin
                 repeat
                     if SalesInvHeader."Prices Including VAT" then
-                        DiscountAmount += DiscountAmount + Round(SalesInvLine."Line Discount Amount" / (1 + SalesInvLine."VAT %" / 100), 0.01)
+                        DiscountAmount := DiscountAmount + Round(SalesInvLine."Line Discount Amount" / (1 + SalesInvLine."VAT %" / 100), 0.01)
                     else
-                        DiscountAmount += DiscountAmount + SalesInvLine."Line Discount Amount";
-                    TaxBase += TaxBase + SalesInvLine."Line Amount";
+                        DiscountAmount := DiscountAmount + SalesInvLine."Line Discount Amount";
+                    TaxBase := TaxBase + SalesInvLine."Line Amount";
                 until SalesInvLine.NEXT = 0;
             end;
         end;
@@ -682,9 +682,9 @@ codeunit 51015 "EB Billing Management"
                 repeat
                     if GetTaxTypeCode(SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group") IN ['1000', '1016', '9995', '9997', '9998'] then begin
                         if SalesCrMemoHdr."Prices Including VAT" then
-                            GrossSaleValue += GrossSaleValue + Round((SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount") / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
+                            GrossSaleValue := GrossSaleValue + Round((SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount") / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
                         else
-                            GrossSaleValue += GrossSaleValue + (SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount");
+                            GrossSaleValue := GrossSaleValue + (SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount");
                         //GrossSaleValue := GrossSaleValue + SalesCrMemoLine."VAT Base Amount";
                     end;
                 until SalesCrMemoLine.NEXT = 0;
@@ -698,9 +698,9 @@ codeunit 51015 "EB Billing Management"
                 repeat
                     if GetTaxTypeCode(SalesInvLine."VAT Bus. Posting Group", SalesInvLine."VAT Prod. Posting Group") IN ['1000', '1016', '9995', '9997', '9998'] then begin
                         if SalesInvHeader."Prices Including VAT" then
-                            GrossSaleValue += GrossSaleValue + Round((SalesInvLine.Amount + SalesInvLine."Line Discount Amount") / (1 + SalesInvLine."VAT %" / 100), 0.01)
+                            GrossSaleValue := GrossSaleValue + Round((SalesInvLine.Amount + SalesInvLine."Line Discount Amount") / (1 + SalesInvLine."VAT %" / 100), 0.01)
                         else
-                            GrossSaleValue += GrossSaleValue + (SalesInvLine.Amount + SalesInvLine."Line Discount Amount");
+                            GrossSaleValue := GrossSaleValue + (SalesInvLine.Amount + SalesInvLine."Line Discount Amount");
                         //GrossSaleValue := GrossSaleValue + SalesInvLine."VAT Base Amount";
                     end;
                 until SalesInvLine.NEXT = 0;
@@ -825,6 +825,13 @@ codeunit 51015 "EB Billing Management"
         end;
     end;
 
+    local procedure GetUnitDiscount(TotalDiscount: Decimal; Qty: Decimal; var UnitDscto: Decimal)
+    begin
+        Clear(UnitDscto);
+        IF Qty <> 0 THEN
+            UnitDscto := ROUND(TotalDiscount / Qty, 0.01, '=')
+    end;
+
     local procedure GetAmtTaxTypeCode(LegalNo: Code[20]; var TaxableAmount: Decimal; var TaxAmount: Decimal): Boolean
     var
         ExistsTaxAmtTotalStatus: Boolean;
@@ -886,6 +893,7 @@ codeunit 51015 "EB Billing Management"
     local procedure DetailedInvoiceTicketXMLPart()
     var
         LineNo: Integer;
+        DsctoUnit: Decimal;
     begin
         if not (Invoice or Ticket) then
             exit;
@@ -946,19 +954,18 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec1:ePricingReference>');
                 AddLineXMLTemp('<elec2:lAlternativeConditionPrice>');
                 AddLineXMLTemp('<elec3:AlternativeConditionPrice>');
-                //            //begin ULN::KFA 001 2020.05.22 ++
-                //             if (SalesInvLine."VAT Bus. Posting Group" = EBSetup."VAT Bus. Posting Group FT") then
-                //              AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount',FormatNumber(SalesInvLine."Unit Price"))) //Precio de venta unitario por ítem y código
-                //             else begin
-                //                fnGetPriceAmountWithoutDscto(SalesInvLine."Line Discount Amount",SalesInvLine.Quantity,lclDsctoUnit);
-                //                AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount',FormatNumber((SalesInvLine."Unit Price" - lclDsctoUnit)* ((100 + SalesInvLine."VAT %")/100)))); //Precio de venta unitario por ¡tem y c¢digo
-                //                end;
-                //             if (SalesInvLine."VAT Bus. Posting Group" = EBSetup."VAT Bus. Posting Group FT") then
-                //              AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode','02')) //Valor referencial unitario por ¡tem en operaciones no onerosas
-                //              else
-                //              //end ULN::KFA 001 2020.05.22 ++
-                AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesInvLine."Unit Price")));
-                AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones no onerosas 
+                if (SalesInvLine."VAT Bus. Posting Group" = LSetup."FT VAT Bus. Posting Group") then
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesInvLine."Unit Price"))) //Precio de venta unitario por ítem y código
+                else begin
+                    GetUnitDiscount(SalesInvLine."Line Discount Amount", SalesInvLine.Quantity, DsctoUnit);
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber((SalesInvLine."Unit Price" - DsctoUnit) * ((100 + SalesInvLine."VAT %") / 100)))); //Precio de venta unitario por item y código
+                end;
+                if (SalesInvLine."VAT Bus. Posting Group" = LSetup."FT VAT Bus. Posting Group") then
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '02')) //Valor referencial unitario por ¡tem en operaciones no onerosas
+                else
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones onerosas 
+                //AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesInvLine."Unit Price")));
+                //AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones no onerosas 
                 AddLineXMLTemp(CreateXMLTag('elec1:currencyID', GetCurrencyCode(SalesInvHeader."Currency Code")));
                 AddLineXMLTemp('</elec3:AlternativeConditionPrice>');
                 AddLineXMLTemp('</elec2:lAlternativeConditionPrice>');
