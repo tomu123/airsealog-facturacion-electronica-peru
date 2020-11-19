@@ -8,7 +8,6 @@ pageextension 51098 "EB Fixed Asset Card" extends "Fixed Asset Card"
             field("EB Legal Item Code"; "EB Legal Item Code")
             {
                 ApplicationArea = All;
-                Caption = 'Legal Item Code', comment = 'ESM="Código Producto Legal"';
             }
         }
     }

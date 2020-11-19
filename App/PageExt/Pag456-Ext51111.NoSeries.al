@@ -9,7 +9,6 @@ pageextension 51111 "EB No Series" extends "No. Series"
             {
                 ApplicationArea = All;
                 Visible = ShowElectronicBill;
-                Caption = 'Electronic Bill', comment = 'ESM="Facturación Electrónica"';
             }
         }
     }

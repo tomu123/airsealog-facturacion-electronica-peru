@@ -9,26 +9,41 @@ pageextension 51118 "EB Sales Credit Memo" extends "Sales Credit Memo"
             {
                 Editable = ShowElectronicInvoice;
                 Visible = ShowElectronicInvoice;
-                Caption = 'Electronic Bill', Comment = 'ESM="Factura electrónica"';
+                Caption = 'Electronic Bill', Comment = 'ESM="Facturación electrónica"';
                 field("EB Electronic Bill"; "EB Electronic Bill")
                 {
                     ApplicationArea = All;
-                    Caption = 'Electronic Bill', Comment = 'ESM="Factura electrónica"';
                 }
                 field("EB Type Operation Document"; "EB Type Operation Document")
                 {
                     ApplicationArea = All;
-                    Caption = 'Type Operation Document', Comment = 'ESM="Tipo Operación Documento"';
                     Editable = "EB Electronic Bill";
                 }
                 field("EB TAX Ref. Document Type"; "EB TAX Ref. Document Type")
                 {
                     ApplicationArea = All;
-                    Caption = 'TAX Ref. Document Type', Comment = 'ESM="Tipo Doc. Tributario Ref."';
+                    Editable = "EB Electronic Bill";
+                }
+                field("EB NC/ND Description Type"; "EB NC/ND Description Type")
+                {
+                    ApplicationArea = All;
+                    Caption = 'NC Description Type', Comment = 'ESM="Tipo descripción NC"';
+                    Editable = "EB Electronic Bill";
+                }
+                field("EB NC/ND Support Description"; "EB NC/ND Support Description")
+                {
+                    ApplicationArea = All;
+                    Caption = 'NC Support Description', Comment = 'ESM="Motivo Nota de crédito"';
+                    Editable = "EB Electronic Bill";
+                }
+                field("EB Motive discount code"; "EB Motive discount code")
+                {
+                    ApplicationArea = All;
                     Editable = "EB Electronic Bill";
                 }
             }
         }
+
         modify("Applies-to Doc. Type")
         {
             Visible = false;
@@ -40,6 +55,19 @@ pageextension 51118 "EB Sales Credit Memo" extends "Sales Credit Memo"
         modify("Applies-to ID")
         {
             Visible = false;
+        }
+        addafter("VAT Registration No.")
+        {
+            field("Posting No. Series"; "Posting No. Series")
+            {
+                ApplicationArea = All;
+            }
+            field("Posting No."; "Posting No.")
+            {
+                ApplicationArea = All;
+
+            }
+
         }
     }
 

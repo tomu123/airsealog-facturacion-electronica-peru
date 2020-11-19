@@ -48,6 +48,18 @@ tableextension 51070 "EB Sales Invoice Header" extends "Sales Invoice Header"
             TableRelation = "Legal Document"."Legal No." where("Option Type" = const("Catalogue SUNAT"), "Type Code" = const('53'), "Applied Level" = const(Header));
             ValidateTableRelation = false;
         }
+        field(51120; "Initial Advanced"; Boolean)
+        {
+            DataClassification = ToBeClassified;
+        }
+        field(51121; "Final Advanced"; Boolean)
+        {
+            DataClassification = ToBeClassified;
+        }
+        field(51122; "Invoice Payment Advanced"; Boolean)
+        {
+            DataClassification = ToBeClassified;
+        }
     }
 
     var

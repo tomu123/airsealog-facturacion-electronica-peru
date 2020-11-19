@@ -1,6 +1,7 @@
 table 51011 "EB Electronic Bill Entry"
 {
     DataClassification = ToBeClassified;
+    Caption = 'Electronic Bill Entry', Comment = 'ESM="Mov. Facturación Electrónica"';
 
     fields
     {
@@ -9,17 +10,17 @@ table 51011 "EB Electronic Bill Entry"
             DataClassification = ToBeClassified;
             Caption = 'Document Type';
             OptionMembers = " ",Invoice,"Credit Memo",Retention;
-            OptionCaption = ' ,Invoice,Credit Memo,Retention';
+            OptionCaption = ' ,Invoice,Credit Memo,Retention', Comment = 'ESM=" ,Factura,Nota de crédito,Retención"';
         }
         field(51001; "EB Document No."; Code[20])
         {
             DataClassification = ToBeClassified;
-            Caption = 'Document No.';
+            Caption = 'Document No.', Comment = 'ESM="N° Documento"';
         }
         field(51002; "EB Legal Document"; Code[10])
         {
             DataClassification = ToBeClassified;
-            Caption = 'Legal Document';
+            Caption = 'Legal Document', Comment = 'ESM="Documento Legal"';
             TableRelation = "Legal Document"."Legal No.";
         }
         field(51003; "EB Ship Status"; Option)
@@ -27,49 +28,59 @@ table 51011 "EB Electronic Bill Entry"
             DataClassification = ToBeClassified;
             Caption = 'Ship Status';
             OptionMembers = "UnSent",Succes,"In Process","Process with Errors";
-            OptionCaption = 'UnSent,Succes,In Process,Process with Errors';
+            OptionCaption = 'UnSent,Succes,In Process,Process with Errors', Comment = 'ESM="No enviado,Enviado,En Proceso,Procesado con errores"';
         }
         field(51004; "EB XML Sender Exists"; Boolean)
         {
             DataClassification = ToBeClassified;
-            Caption = 'XML Sender Exists';
+            Caption = 'XML Sender Exists', Comment = 'ESM="Existe XML Solicitud"';
         }
         field(51005; "EB XML Sender Blob"; Blob)
         {
             DataClassification = ToBeClassified;
-            Caption = 'XML Sender Blob';
+            Caption = 'XML Sender Blob', Comment = 'ESM="XML Solicitud"';
         }
         field(51008; "EB Response Text"; Text[250])
         {
             DataClassification = ToBeClassified;
-            Caption = 'Response Text';
+            Caption = 'Response Text', Comment = 'ESM="Texto de respuesta"';
         }
         field(51009; "EB Last Modify Date"; DateTime)
         {
             DataClassification = ToBeClassified;
-            Caption = 'Last Modify Date';
+            Caption = 'Last Modify Date', Comment = 'ESM="Ult. fecha modificación"';
         }
         field(51010; "EB Last Modify User Id."; Code[50])
         {
             DataClassification = ToBeClassified;
-            Caption = 'Last Modify User Id.';
+            Caption = 'Last Modify User Id.', Comment = 'ESM="Id. Usuario ult. modificación"';
             TableRelation = User."User Name";
             ValidateTableRelation = false;
         }
         field(51011; "EB Legal Status Code"; Code[10])
         {
             DataClassification = ToBeClassified;
-            Caption = 'Legal Status Code';
+            Caption = 'Legal Status Code', Comment = 'ESM="Cód. Respuesta SUNAT"';
         }
         field(51012; "EB Qr Exists"; Boolean)
         {
             DataClassification = ToBeClassified;
-            Caption = 'XML Qr Exists';
+            Caption = 'XML Qr Exists', Comment = 'ESM="Existe QR"';
         }
         field(51013; "EB Qr Blob"; Blob)
         {
             DataClassification = ToBeClassified;
-            Caption = 'XML Qr Blob';
+            Caption = 'XML Qr Blob', Comment = 'ESM="Representación de QR"';
+        }
+        field(51014; "EB XML Response Exists"; Boolean)
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'XML Response Exists', Comment = 'ESM="Existe XML Respuesta"';
+        }
+        field(51015; "EB XML Response"; Blob)
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'XML Response', Comment = 'ESM="XML de respuesta"';
         }
     }
 
@@ -82,13 +93,9 @@ table 51011 "EB Electronic Bill Entry"
     }
 
     var
-
-        FileIsNotExist: Label 'The File is not exists.', comment = 'ESM="El archivo no existe"';
-        DialogTitle: Label 'Download File', comment = 'ESM="Descargar archivo"';
-        MsgEmptyEntry: Label 'There is no entry identified with document %1 and type %2.', comment = 'ESM="No hay ninguna entrada identificada con el documento %1 y el tipo %2."';
-    //FileIsNotExist: TextConst ENU = 'The File is not exists.';
-    //DialogTitle: TextConst ENU = 'Download File';
-    //MsgEmptyEntry: TextConst ENU = 'There is no entry identified with document %1 and type %2.';
+        FileIsNotExist: Label 'The File is not exists.', Comment = 'ESM="El archivo no existe."';
+        DialogTitle: Label 'Download File', Comment = 'ESM="Descargar archivo"';
+        MsgEmptyEntry: Label 'There is no entry identified with document %1 and type %2.', Comment = 'ESM="No se encuentra mov. factura electronico identificado con N° Documento %1 y tipo %2."';
 
     trigger OnInsert()
     begin
@@ -110,7 +117,7 @@ table 51011 "EB Electronic Bill Entry"
 
     end;
 
-    procedure InsertEBEntryRecord(DocumentType: Option; DocumentNo: Code[20]; LegalDocument: Code[10]; ShipStatus: Option; LegalStatusCode: Code[10]; ResponseText: Text; var TempBlobXML: Codeunit "Temp Blob"; var TempBlobQr: Codeunit "Temp Blob"; ModifyStatusAndQR: Boolean): Integer //var SenderXMLInStream: InStream; QrInStream: InStream;
+    procedure InsertEBEntryRecord(DocumentType: Option; DocumentNo: Code[20]; LegalDocument: Code[10]; ShipStatus: Option; LegalStatusCode: Code[10]; ResponseText: Text; SenderInStream: InStream; ResponseInStream: InStream; var TempBlobQr: Codeunit "Temp Blob"; ModifyStatusAndQR: Boolean): Integer //var SenderXMLInStream: InStream; QrInStream: InStream;
     var
         EBEntry: Record "EB Electronic Bill Entry";
         NextEntryNo: Integer;
@@ -118,6 +125,7 @@ table 51011 "EB Electronic Bill Entry"
         QrInStream: InStream;
         SenderXMLOutStream: OutStream;
         QrOutStream: OutStream;
+        ResponseOutStream: OutStream;
         FileName: Text;
         FileText: Text;
         FullFileText: Text;
@@ -133,15 +141,16 @@ table 51011 "EB Electronic Bill Entry"
             EBEntry."EB Legal Document" := LegalDocument;
             EBEntry."EB Ship Status" := ShipStatus;
             EBEntry."EB Legal Status Code" := LegalStatusCode;
-
-            TempBlobXML.CreateInStream(SenderXMLInStream);
+            EBEntry.Insert();
+            //TempBlobXML.CreateInStream(SenderXMLInStream);
             EBEntry."EB XML Sender Blob".CreateOutStream(SenderXMLOutStream);
-            while not SenderXMLInStream.EOS do begin
+            /*while not SenderXMLInStream.EOS do begin
                 SenderXMLInStream.ReadText(FileText);
                 SenderXMLOutStream.WriteText(FileText);
-            end;
+            end;*/
             //SenderXMLOutStream.WriteText(FullFileText);
-            //CopyStream(SenderXMLOutStream, SenderXMLInStream);
+            CopyStream(SenderXMLOutStream, SenderInStream);
+            EBEntry.Modify();
             EBEntry.CalcFields("EB XML Sender Blob");
             EBEntry."EB XML Sender Exists" := EBEntry."EB XML Sender Blob".HasValue();
 
@@ -154,21 +163,35 @@ table 51011 "EB Electronic Bill Entry"
             EBEntry."EB Last Modify Date" := CurrentDateTime;
             EBEntry."EB Last Modify User Id." := UserId;
             EBEntry."EB Response Text" := ResponseText;
-            EBEntry.Insert();
+            EBEntry.Modify();
+
+            EBEntry."EB XML Response".CreateOutStream(ResponseOutStream);
+            CopyStream(ResponseOutStream, ResponseInStream);
+            EBEntry.CalcFields("EB XML Response");
+            EBEntry."EB XML Response Exists" := EBEntry."EB XML Response".HasValue();
+            EBEntry.Modify();
+
         end else begin
             EBEntry.FindSet();
             if ModifyStatusAndQR then begin
                 EBEntry."EB Ship Status" := ShipStatus;
                 EBEntry."EB Legal Status Code" := LegalStatusCode;
             end;
-            TempBlobXML.CreateInStream(SenderXMLInStream);
+            //TempBlobXML.CreateInStream(SenderXMLInStream);
             EBEntry."EB XML Sender Blob".CreateOutStream(SenderXMLOutStream);
-            CopyStream(SenderXMLOutStream, SenderXMLInStream);
+            CopyStream(SenderXMLOutStream, SenderInStream);
+            EBEntry.Modify();
             EBEntry.CalcFields("EB XML Sender Blob");
             EBEntry."EB XML Sender Exists" := EBEntry."EB XML Sender Blob".HasValue();
             EBEntry."EB Last Modify Date" := CurrentDateTime;
             EBEntry."EB Last Modify User Id." := UserId;
             EBEntry."EB Response Text" := ResponseText;
+            EBEntry.Modify();
+
+            EBEntry."EB XML Response".CreateOutStream(ResponseOutStream);
+            CopyStream(ResponseOutStream, ResponseInStream);
+            EBEntry.CalcFields("EB XML Response");
+            EBEntry."EB XML Response Exists" := EBEntry."EB XML Response".HasValue();
             EBEntry.Modify();
         end;
     end;
@@ -181,12 +204,21 @@ table 51011 "EB Electronic Bill Entry"
         TempBlob: Codeunit "Temp Blob";
     begin
         EBEntry.CalcFields("EB XML Sender Blob");
-        //If not EBEntry."EB XML Sender Blob".HasValue then begin
-        //    Message(FileIsNotExist);
-        //    exit;
-        //end;
         EBEntry."EB XML Sender Blob".CreateInStream(NewFileInStream);
         ToFileName := StrSubstNo('%1-%2-%3.%4', Format(EBEntry."EB Document Type"), EBEntry."EB Document No.", EBEntry."EB Legal Document", 'xml');
+        DownloadFromStream(NewFileInStream, DialogTitle, '', 'All Files (*.*)|*.*', ToFileName);
+    end;
+
+    procedure DownLoadResponseFile(var EBEntry: Record "EB Electronic Bill Entry")
+    var
+        NewFileInStream: InsTream;
+        NewFileOutStream: OutStream;
+        ToFileName: text[250];
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        EBEntry.CalcFields("EB XML Response");
+        EBEntry."EB XML Response".CreateInStream(NewFileInStream);
+        ToFileName := StrSubstNo('%1-%2-%3-Respuesta.%4', Format(EBEntry."EB Document Type"), EBEntry."EB Document No.", EBEntry."EB Legal Document", 'xml');
         DownloadFromStream(NewFileInStream, DialogTitle, '', 'All Files (*.*)|*.*', ToFileName);
     end;
 

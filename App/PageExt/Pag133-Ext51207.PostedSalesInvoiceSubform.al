@@ -1,17 +1,16 @@
-pageextension 51095 "EB G/L Account Card" extends "G/L Account Card"
+pageextension 51207 "EB Posted Sales Inv. Subform" extends "Posted Sales Invoice Subform"
 {
     layout
     {
         // Add changes to page layout here
-        addafter(FirstField)
+        addafter("Line Discount %")
         {
-            field("EB Legal Item Code"; "EB Legal Item Code")
+            field("EB Motive discount code"; "EB Motive discount code")
             {
                 ApplicationArea = All;
             }
         }
     }
-
 
     actions
     {

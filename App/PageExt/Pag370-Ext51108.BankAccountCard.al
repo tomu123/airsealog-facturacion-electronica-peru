@@ -9,7 +9,6 @@ pageextension 51108 "EB Bank Account Card" extends "Bank Account Card"
             {
                 ApplicationArea = All;
                 Visible = ViewEBSender;
-                Caption = 'Show Electronic Bill', comment = 'ESM="Mostrar en Facturación Electrónica"';
             }
         }
     }

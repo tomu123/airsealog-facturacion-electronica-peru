@@ -13,7 +13,7 @@ pageextension 51109 "EB Setup Localization" extends "Setup Localization"
             action(EBSetup)
             {
                 ApplicationArea = All;
-                Caption = 'Electronic Bill Setup.', Comment = 'ESM="Configuración Facturación Electrónica"';
+                Caption = 'Electronic Bill Setup.', Comment = 'ESM="Conf. Facturación electrónica"';
                 Image = Setup;
                 RunObject = page "EB Electronic Bill Setup Card";
             }
@@ -22,7 +22,6 @@ pageextension 51109 "EB Setup Localization" extends "Setup Localization"
                 ApplicationArea = All;
                 Caption = 'Probar Doc.';
                 Image = Setup;
-                Visible = false;
                 trigger OnAction()
                 var
                     cu51015: Codeunit 51015;

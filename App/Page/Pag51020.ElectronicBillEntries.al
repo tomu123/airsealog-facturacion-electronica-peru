@@ -2,10 +2,11 @@ page 51020 "EB Electronic Bill Entries"
 {
     PageType = List;
     ApplicationArea = All;
+    Caption = 'Electronic Bill Entries', Comment = 'ESM="Mov. Facturación Electrónica"';
+    PromotedActionCategories = 'New,Process,Report,Information,InternalControl', Comment = 'ESM="Nueavo,Proceso,Reporte,Información SUNAT,Control Interno"';
     UsageCategory = Lists;
     Editable = false;
     SourceTable = "EB Electronic Bill Entry";
-    Caption = 'Electronic Bill Entries', comment = 'ESM="Movimientos Facturación Electrónica"';
 
     layout
     {
@@ -16,47 +17,38 @@ page 51020 "EB Electronic Bill Entries"
                 field("EB Document Type"; "EB Document Type")
                 {
                     ApplicationArea = All;
-                    Caption = 'Document Type', comment = 'ESM="Tipo Documento"';
                 }
                 field("EB Document No."; "EB Document No.")
                 {
                     ApplicationArea = All;
-                    Caption = 'Document No.', comment = 'ESM="Nro. Documento"';
                 }
                 field("EB Legal Document"; "EB Legal Document")
                 {
                     ApplicationArea = All;
-                    Caption = 'Legal Document', comment = 'ESM="Documento Legal"';
                 }
                 field("EB Ship Status"; "EB Ship Status")
                 {
                     ApplicationArea = All;
-                    Caption = 'Ship Status', comment = 'ESM="Estado Envio"';
                 }
                 field("EB Legal Status Code"; "EB Legal Status Code")
                 {
                     ApplicationArea = All;
-                    Caption = 'Legal Status Status', comment = 'ESM="Código Estado"';
                 }
                 field("EB XML Sender Exists"; "EB XML Sender Exists")
                 {
                     ApplicationArea = All;
-                    Caption = 'XML Sender Exists File', comment = 'ESM="Existe Archivo XML Enviado"';
                 }
                 field("EB Response Text"; "EB Response Text")
                 {
                     ApplicationArea = All;
-                    Caption = 'Response Text', comment = 'ESM="Respuesta"';
                 }
                 field("EB Last Modify Date"; "EB Last Modify Date")
                 {
                     ApplicationArea = All;
-                    Caption = 'Last Modify Date', comment = 'ESM="Fecha últ. modificación"';
                 }
                 field("EB Last Modify User Id."; "EB Last Modify User Id.")
                 {
                     ApplicationArea = All;
-                    Caption = 'Last Modify User Id.', comment = 'ESM="Usuario últ. modificación"';
                 }
             }
         }
@@ -68,25 +60,57 @@ page 51020 "EB Electronic Bill Entries"
         {
             group(DownloadFiles)
             {
-                Caption = 'Download Files', comment = 'ESM="Descargar Archivos"';
+                Caption = 'Download Files', Comment = 'ESM="Descargar archivos"';
                 Image = TransmitElectronicDoc;
                 action(InternalXml)
                 {
                     ApplicationArea = All;
-                    Caption = 'Internal XML', comment = 'ESM="XML Interno"';
+                    Caption = 'Internal XML', Comment = 'ESM="Solicitud XML"';
                     Image = XMLFile;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    Scope = "Repeater";
+
                     trigger OnAction();
                     begin
                         if IsEmpty then
                             exit;
                         DownLoadSenderFile(Rec);
+                        Message('Este documento XML solo es válido para temas de control interno y de testeo en Business Central.');
+                    end;
+                }
+                action(ResponseXML)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Response XML', Comment = 'ESM="Respuesta XML"';
+                    Image = XMLFile;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    Scope = "Repeater";
+
+                    trigger OnAction();
+                    begin
+                        if IsEmpty then
+                            exit;
+                        DownLoadResponseFile(Rec);
+                        Message('Este documento XML solo es válido para temas de control interno y de testeo en Business Central.');
                     end;
                 }
                 action(PdfFile)
                 {
                     ApplicationArea = All;
-                    Caption = 'PDF File', comment = 'ESM="Archivo PDF"';
+                    Caption = 'PDF File', Comment = 'ESM="Representación PDF"';
                     Image = SendAsPDF;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    Scope = "Repeater";
+
                     trigger OnAction();
                     begin
                         if IsEmpty then
@@ -97,8 +121,14 @@ page 51020 "EB Electronic Bill Entries"
                 action(LegalXml)
                 {
                     ApplicationArea = All;
-                    Caption = 'Legal Xml', comment = 'ESM="XML Legal"';
+                    Caption = 'Legal Xml', Comment = 'ESM="XML SUNAT"';
                     Image = XMLFile;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    Scope = "Repeater";
+
                     trigger OnAction();
                     begin
                         if IsEmpty then
@@ -109,8 +139,14 @@ page 51020 "EB Electronic Bill Entries"
                 action(CdrXml)
                 {
                     ApplicationArea = All;
-                    Caption = 'Cdr Xml', comment = 'ESM="CDR"';
+                    Caption = 'Cdr Xml', Comment = 'ESM="CDR XML"';
                     Image = XMLFile;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    Scope = "Repeater";
+
                     trigger OnAction();
                     begin
                         if IsEmpty then
@@ -123,7 +159,14 @@ page 51020 "EB Electronic Bill Entries"
             action(ResendDocument)
             {
                 ApplicationArea = All;
-                Caption = 'Resend Document', comment = 'ESM="Reenviar Documento"';
+                Caption = 'Resend Document', Comment = 'ESM="Reenviar documento electrónico"';
+                Image = SendElectronicDocument;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                Scope = "Repeater";
+
                 trigger OnAction()
                 var
                     EBMgt: Codeunit "EB Billing Management";

@@ -1,17 +1,17 @@
-pageextension 51095 "EB G/L Account Card" extends "G/L Account Card"
+pageextension 51800 "ST Edit Dim. Set Entry" extends "Edit Dimension Set Entries"
 {
     layout
     {
         // Add changes to page layout here
-        addafter(FirstField)
+        addafter("Dimension Code")
         {
-            field("EB Legal Item Code"; "EB Legal Item Code")
+            field("Dimension Set ID"; "Dimension Set ID")
             {
                 ApplicationArea = All;
+                Visible = false;
             }
         }
     }
-
 
     actions
     {

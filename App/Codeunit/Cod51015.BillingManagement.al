@@ -3,18 +3,16 @@ codeunit 51015 "EB Billing Management"
     trigger OnRun()
     var
         CodeUnit80: codeunit "Sales-Post";
+
     begin
 
     end;
-
     //******************* Integrations with codeunit sales-post BEGIN *********************
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterValidatePostingAndDocumentDate', '', false, false)]
-    local procedure SetOnAfterValidatePostingAndDocumentDate(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
+    // OnBeforePostSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var HideProgressWindow: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostSalesDoc', '', false, false)]
+    local procedure SetOnBeforePostSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var HideProgressWindow: Boolean)
     begin
-        GetSetup(false);
-        if not EBSetup."EB Electronic Sender" then
-            exit;
+        checkPrePostAccount(SalesHeader);
         CheckElectronicBill(SalesHeader);
     end;
 
@@ -37,6 +35,18 @@ codeunit 51015 "EB Billing Management"
             PostElectronicDocument(SalesCrMemoHdr."No.", SalesCrMemoHdr."Legal Document");
         end;
     end;
+    //OnBeforeInsertGLEntryBuffer(var TempGLEntryBuf: Record "G/L Entry" temporary; var GenJournalLine: Record "Gen. Journal Line"; var BalanceCheckAmount: Decimal; var BalanceCheckAmount2: Decimal; var BalanceCheckAddCurrAmount: Decimal; var BalanceCheckAddCurrAmount2: Decimal; var NextEntryNo: Integer; var TotalAmount: Decimal; var TotalAddCurrAmount: Decimal)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforeInsertGLEntryBuffer', '', true, true)]
+    local procedure SetOnBeforeInsertGLEntryBuffer(var TempGLEntryBuf: Record "G/L Entry" temporary; var GenJournalLine: Record "Gen. Journal Line"; var BalanceCheckAmount: Decimal; var BalanceCheckAmount2: Decimal; var BalanceCheckAddCurrAmount: Decimal; var BalanceCheckAddCurrAmount2: Decimal; var NextEntryNo: Integer; var TotalAmount: Decimal; var TotalAddCurrAmount: Decimal)
+    var
+        DimensionEntry: Record "Dimension Set Entry";
+    begin
+        DimensionEntry.Reset();
+        DimensionEntry.SetRange("Dimension Set ID", GenJournalLine."Dimension Set ID");
+        DimensionEntry.SetRange("Dimension Code", 'ANTICIPO');
+        IF DimensionEntry.FindSet() then
+            TempGLEntryBuf."EB No. Invoice Advanced" := DimensionEntry."Dimension Value Code";
+    end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInitRecord', '', True, True)]
     procedure AssignLegalDocumentValues(var SalesHeader: Record "Sales Header")
@@ -49,6 +59,23 @@ codeunit 51015 "EB Billing Management"
         SalesHeader."EB Electronic Bill" := NoSeries.Find('-');
     end;
 
+    //OnRunOnBeforeFinalizePosting(var SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; CommitIsSuppressed: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnRunOnBeforeFinalizePosting', '', false, false)]
+    local procedure OnRunOnBeforeFinalizePosting(var SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; CommitIsSuppressed: Boolean)
+    var
+        DimValue: Record "Dimension Value";
+        SLSetup2: Record "Setup Localization";
+    begin
+        if SalesInvoiceHeader.IsEmpty then
+            exit;
+        if SalesInvoiceHeader."Invoice Payment Advanced" then begin
+            DimValue.Init();
+            DimValue."Dimension Code" := 'ANTICIPO';
+            DimValue.Code := SalesInvoiceHeader."No.";
+            DimValue.Name := 'Descripción definir por lizeth';
+            DimValue.Insert();
+        end;
+    end;
     //******************* Integrations with codeunit sales-post END *********************
 
     //************************** POSTED *******************************
@@ -137,8 +164,8 @@ codeunit 51015 "EB Billing Management"
         GeneralInfoXMLPart();
         SupplierAccountXMLPart();
         CustomerAccountXMLPart();
-        TotalSaleValueXMLPart();
         TotalTaxAmtXMLPart();
+        TotalSaleValueXMLPart();
         DetailedCreditNoteXMLPart();
         PersonalizationPDFXMLPart();
         FooterXMLPart();
@@ -150,8 +177,8 @@ codeunit 51015 "EB Billing Management"
         GeneralInfoXMLPart();
         SupplierAccountXMLPart();
         CustomerAccountXMLPart();
-        TotalSaleValueXMLPart();
         TotalTaxAmtXMLPart();
+        TotalSaleValueXMLPart();
         DetailedDebitNoteXMLPart();
         PersonalizationPDFXMLPart();
         FooterXMLPart();
@@ -536,7 +563,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp(CreateXMLTag('elec1:Amount_currencyID', GetCurrencyCode(SalesInvHeader."Currency Code")));
                 AddLineXMLTemp(CreateXMLTag('elec1:BaseAmount', FormatNumber(TaxBase)));
                 AddLineXMLTemp(CreateXMLTag('elec1:ChargeIndicator', '<![CDATA[false]]>'));
-                AddLineXMLTemp(CreateXMLTag('elec1:MultiplierFactorNumeric', ''));
+                AddLineXMLTemp(CreateXMLTag('elec1:MultiplierFactorNumeric', Format(Round(TotalAmtDiscount / TaxBase, 0.0001), 0, '<Precision,5:5><Standard Format,2>')));
                 AddLineXMLTemp('</elec:eAllowancecharge>');
             end;
             GetTotalAmtDiscountLine(TaxBase, TotalDiscountLine);
@@ -602,10 +629,10 @@ codeunit 51015 "EB Billing Management"
             if SalesCrMemoLine.FindSet then begin
                 repeat
                     if SalesCrMemoHdr."Prices Including VAT" then
-                        AmtDiscount := AmtDiscount + Round(SalesCrMemoLine."Inv. Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
+                        AmtDiscount += Round(SalesCrMemoLine."Inv. Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
                     else
-                        AmtDiscount := AmtDiscount + SalesCrMemoLine."Inv. Discount Amount";
-                    TaxBase := TaxBase + SalesCrMemoLine."Line Amount";
+                        AmtDiscount += SalesCrMemoLine."Inv. Discount Amount";
+                    TaxBase += SalesCrMemoLine."Line Amount";
                 until SalesCrMemoLine.NEXT = 0;
             end;
             ReasonCode := SalesCrMemoHdr."EB Charge/Discount Code";//  " EB Charges Code or Discounts Code";
@@ -617,15 +644,15 @@ codeunit 51015 "EB Billing Management"
             if SalesInvLine.FindSet then begin
                 repeat
                     if SalesInvHeader."Prices Including VAT" then
-                        AmtDiscount := AmtDiscount + Round(SalesInvLine."Inv. Discount Amount" / (1 + SalesInvLine."VAT %" / 100), 0.01)
+                        AmtDiscount += Round(SalesInvLine."Inv. Discount Amount" / (1 + SalesInvLine."VAT %" / 100), 0.01)
                     else
-                        AmtDiscount := AmtDiscount + SalesInvLine."Inv. Discount Amount";
-                    TaxBase := TaxBase + SalesInvLine."Line Amount";
+                        AmtDiscount += SalesInvLine."Inv. Discount Amount";
+                    TaxBase += SalesInvLine."Line Amount";
                 until SalesInvLine.NEXT = 0;
             end;
             ReasonCode := SalesInvHeader."EB Charge/Discount Code";
         end;
-        TaxBase := TaxBase + AmtDiscount;
+        //TaxBase := TaxBase + AmtDiscount;
         if AmtDiscount <> 0 then
             PercentageAmt := Round((AmtDiscount / TaxBase) * 100, 0.01)
     end;
@@ -643,10 +670,10 @@ codeunit 51015 "EB Billing Management"
             if SalesCrMemoLine.FindFirst() then begin
                 repeat
                     if SalesCrMemoHdr."Prices Including VAT" then
-                        DiscountAmount := DiscountAmount + Round(SalesCrMemoLine."Line Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
+                        DiscountAmount += DiscountAmount + Round(SalesCrMemoLine."Line Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
                     else
-                        DiscountAmount := DiscountAmount + SalesCrMemoLine."Line Discount Amount";
-                    TaxBase := TaxBase + SalesCrMemoLine."Line Amount";
+                        DiscountAmount += DiscountAmount + SalesCrMemoLine."Line Discount Amount";
+                    TaxBase += TaxBase + SalesCrMemoLine."Line Amount";
                 until SalesCrMemoLine.NEXT = 0;
             end;
         end else begin
@@ -658,10 +685,10 @@ codeunit 51015 "EB Billing Management"
             if SalesInvLine.FindSet then begin
                 repeat
                     if SalesInvHeader."Prices Including VAT" then
-                        DiscountAmount := DiscountAmount + Round(SalesInvLine."Line Discount Amount" / (1 + SalesInvLine."VAT %" / 100), 0.01)
+                        DiscountAmount += DiscountAmount + Round(SalesInvLine."Line Discount Amount" / (1 + SalesInvLine."VAT %" / 100), 0.01)
                     else
-                        DiscountAmount := DiscountAmount + SalesInvLine."Line Discount Amount";
-                    TaxBase := TaxBase + SalesInvLine."Line Amount";
+                        DiscountAmount += DiscountAmount + SalesInvLine."Line Discount Amount";
+                    TaxBase += TaxBase + SalesInvLine."Line Amount";
                 until SalesInvLine.NEXT = 0;
             end;
         end;
@@ -682,9 +709,9 @@ codeunit 51015 "EB Billing Management"
                 repeat
                     if GetTaxTypeCode(SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group") IN ['1000', '1016', '9995', '9997', '9998'] then begin
                         if SalesCrMemoHdr."Prices Including VAT" then
-                            GrossSaleValue := GrossSaleValue + Round((SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount") / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
+                            GrossSaleValue += GrossSaleValue + Round((SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount") / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
                         else
-                            GrossSaleValue := GrossSaleValue + (SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount");
+                            GrossSaleValue += GrossSaleValue + (SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount");
                         //GrossSaleValue := GrossSaleValue + SalesCrMemoLine."VAT Base Amount";
                     end;
                 until SalesCrMemoLine.NEXT = 0;
@@ -698,9 +725,9 @@ codeunit 51015 "EB Billing Management"
                 repeat
                     if GetTaxTypeCode(SalesInvLine."VAT Bus. Posting Group", SalesInvLine."VAT Prod. Posting Group") IN ['1000', '1016', '9995', '9997', '9998'] then begin
                         if SalesInvHeader."Prices Including VAT" then
-                            GrossSaleValue := GrossSaleValue + Round((SalesInvLine.Amount + SalesInvLine."Line Discount Amount") / (1 + SalesInvLine."VAT %" / 100), 0.01)
+                            GrossSaleValue += Round((SalesInvLine.Amount + SalesInvLine."Line Discount Amount") / (1 + SalesInvLine."VAT %" / 100), 0.01)
                         else
-                            GrossSaleValue := GrossSaleValue + (SalesInvLine.Amount + SalesInvLine."Line Discount Amount");
+                            GrossSaleValue += (SalesInvLine.Amount + SalesInvLine."Line Discount Amount");
                         //GrossSaleValue := GrossSaleValue + SalesInvLine."VAT Base Amount";
                     end;
                 until SalesInvLine.NEXT = 0;
@@ -711,11 +738,9 @@ codeunit 51015 "EB Billing Management"
 
     local procedure GetTaxTypeCode(VATBusPostingGroup: Code[10]; VATProdPostingGroup: Code[10]): Code[10]
     begin
-        with VATPostingSetup do begin
-            if Get(VATBusPostingGroup, VATProdPostingGroup) then
-                exit("EB Tax Type Code");
-            exit('');
-        end;
+        if VATPostingSetup.Get(VATBusPostingGroup, VATProdPostingGroup) then
+            exit(VATPostingSetup."EB Tax Type Code");
+        exit('');
     end;
 
     local procedure NormalizeRUC(pRuc: Text): Text
@@ -732,7 +757,7 @@ codeunit 51015 "EB Billing Management"
         Clear(TotalPrePaidAmt);
         if not (Invoice or Ticket) then
             exit(0);
-        /**if SalesInvHeader."Factura final anticipo" then
+        /*if SalesInvHeader."Factura final anticipo" then
             exit(0);
 
         SalesInvLine.Reset;
@@ -825,13 +850,6 @@ codeunit 51015 "EB Billing Management"
         end;
     end;
 
-    local procedure GetUnitDiscount(TotalDiscount: Decimal; Qty: Decimal; var UnitDscto: Decimal)
-    begin
-        Clear(UnitDscto);
-        IF Qty <> 0 THEN
-            UnitDscto := ROUND(TotalDiscount / Qty, 0.01, '=')
-    end;
-
     local procedure GetAmtTaxTypeCode(LegalNo: Code[20]; var TaxableAmount: Decimal; var TaxAmount: Decimal): Boolean
     var
         ExistsTaxAmtTotalStatus: Boolean;
@@ -893,7 +911,10 @@ codeunit 51015 "EB Billing Management"
     local procedure DetailedInvoiceTicketXMLPart()
     var
         LineNo: Integer;
-        DsctoUnit: Decimal;
+        PriceAmountDec: Decimal;
+        PriceIncludeVAT: Decimal;
+        UnitDiscount: Decimal;
+        LineAmountDecimal: Decimal;
     begin
         if not (Invoice or Ticket) then
             exit;
@@ -908,6 +929,10 @@ codeunit 51015 "EB Billing Management"
             AddLineXMLTemp('<elec:lInvoiceLine>');
             repeat
                 LineNo += 1;
+                PriceIncludeVAT := 0;
+                UnitDiscount := 0;
+                PriceAmountDec := 0;
+                LineAmountDecimal := 0;
                 //NumGuiaHeader := '';
                 //NumGuiaHeader := SalesInvLine."Shipment No.";
                 VATPostingSetup.GET(SalesInvLine."VAT Bus. Posting Group", SalesInvLine."VAT Prod. Posting Group");
@@ -920,12 +945,24 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec1:InvoiceLine>');
                 AddLineXMLTemp(CreateXMLTag('elec1:ID', Format(LineNo)));  //Número de orden del Ítem.
                 AddLineXMLTemp(CreateXMLTag('elec1:InvoicedQuantity', FormatNumber(SalesInvLine.Quantity))); //Cantidad y Unidad de Medida por ítem.
-                AddLineXMLTemp(CreateXMLTag('elec1:LineExtensionAmount', FormatNumber(SalesInvLine.Amount))); //Valor de venta por ítem
+                //++ ULN::RRR BEGIN 06/11/2020
+                if (SalesInvLine."Inv. Discount Amount" <> 0) or (SalesInvLine."Line Discount Amount" <> 0) then begin
+                    if (SalesInvLine."Line Discount Amount" <> 0) then begin
+                        UnitDiscount := Round(SalesInvLine."Line Discount Amount" / SalesInvLine.Quantity);
+                        PriceAmountDec := Round((SalesInvLine."Unit Price" - UnitDiscount) * (1 + SalesInvLine."VAT %" / 100));
+                    end else begin
+                        UnitDiscount := Round(SalesInvLine."Inv. Discount Amount" / SalesInvLine.Quantity);
+                        PriceAmountDec := Round((SalesInvLine."Unit Price" - UnitDiscount) * (1 + SalesInvLine."VAT %" / 100));
+                    end;
+                    LineAmountDecimal := PriceAmountDec * SalesInvLine.Quantity;
+                    AddLineXMLTemp(CreateXMLTag('elec1:LineExtensionAmount', FormatNumber(LineAmountDecimal))); //Valor de venta por ítem
+                end else //++ ULN::RRR END 06/11/2020
+                    AddLineXMLTemp(CreateXMLTag('elec1:LineExtensionAmount', FormatNumber(SalesInvLine.Amount))); //Valor de venta por ítem
                 AddLineXMLTemp(CreateXMLTag('elec1:currencyID', GetCurrencyCode(SalesInvHeader."Currency Code")));
                 if SalesInvLine."Line Discount Amount" <> 0 then begin //Descuento en linea
                     AddLineXMLTemp('<elec1:eAllowancecharge>');
                     AddLineXMLTemp(CreateXMLTag('elec2:chargeIndicator', '<![CDATA[false]]>'));
-                    //XXXXAddLineXMLTemp(CreateXMLTag('elec2:AllowanceChargeReasonCode', SalesInvLine."Charges Code or Discounts Code"));
+                    AddLineXMLTemp(CreateXMLTag('elec2:AllowanceChargeReasonCode', SalesInvLine."EB Motive discount code"));
                     AddLineXMLTemp(CreateXMLTag('elec2:MultiplierFactorNumeric', FormatNumber(Round(SalesInvLine."Line Discount Amount" / (SalesInvLine.Amount + SalesInvLine."Line Discount Amount"), 0.001, '='))));
                     AddLineXMLTemp(CreateXMLTag('elec2:BaseAmount', FormatNumber(SalesInvLine.Amount + SalesInvLine."Line Discount Amount")));
                     AddLineXMLTemp(CreateXMLTag('elec2:amount', FormatNumber(SalesInvLine."Line Discount Amount")));
@@ -947,25 +984,45 @@ codeunit 51015 "EB Billing Management"
                     //end ULN::KFA 001 2020.05.22 ++
                     AddLineXMLTemp(CreateXMLTag('elec2:PriceAmount', FormatNumber(0)))
                 else
-                    AddLineXMLTemp(CreateXMLTag('elec2:PriceAmount', FormatNumber(SalesInvLine."Unit Price")));
+                    //++ BEGIN ULN::RRR Descuentos globales 06/11/2020
+                    begin
+                    if (SalesInvLine."Line Discount Amount" <> 0) then begin
+                        UnitDiscount := Round(SalesInvLine."Line Discount Amount" / SalesInvLine.Quantity);
+                        PriceAmountDec := Round((SalesInvLine."Unit Price" - UnitDiscount) * (1 + SalesInvLine."VAT %" / 100));
+                        //PriceAmountDec := PriceIncludeVAT - UnitDiscount;
+                        //PriceAmountDec := Round((SalesInvLine."Amount Including VAT" - SalesInvLine."Line Discount Amount") / SalesInvLine.Quantity, 0.01);
+                    end else begin
+                        UnitDiscount := Round(SalesInvLine."Inv. Discount Amount" / SalesInvLine.Quantity);
+                        PriceAmountDec := Round((SalesInvLine."Unit Price" - UnitDiscount) * (1 + SalesInvLine."VAT %" / 100));
+                        //PriceAmountDec := PriceIncludeVAT - UnitDiscount;
+                        //PriceAmountDec := Round((SalesInvLine."Amount Including VAT" - SalesInvLine."Inv. Discount Amount") / SalesInvLine.Quantity, 0.01);
+                    end;
+                    AddLineXMLTemp(CreateXMLTag('elec2:PriceAmount', FormatNumber(PriceAmountDec)));
+                end;
+                //++ ULN::RRR Descuentos globales 06/11/2020
+
                 //AddLineXMLTemp(CreateXMLTag('elec2:PriceAmountIncVAT',FormatNumber(Round(SalesInvLine."Unit Price"*(1 + SalesInvLine."VAT %"/100))))); 
                 AddLineXMLTemp(CreateXMLTag('elec2:currencyID', GetCurrencyCode(SalesInvHeader."Currency Code")));
                 AddLineXMLTemp('</elec1:ePrice>');
                 AddLineXMLTemp('<elec1:ePricingReference>');
                 AddLineXMLTemp('<elec2:lAlternativeConditionPrice>');
                 AddLineXMLTemp('<elec3:AlternativeConditionPrice>');
-                if (SalesInvLine."VAT Bus. Posting Group" = LSetup."FT VAT Bus. Posting Group") then
-                    AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesInvLine."Unit Price"))) //Precio de venta unitario por ítem y código
-                else begin
-                    GetUnitDiscount(SalesInvLine."Line Discount Amount", SalesInvLine.Quantity, DsctoUnit);
-                    AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber((SalesInvLine."Unit Price" - DsctoUnit) * ((100 + SalesInvLine."VAT %") / 100)))); //Precio de venta unitario por item y código
-                end;
-                if (SalesInvLine."VAT Bus. Posting Group" = LSetup."FT VAT Bus. Posting Group") then
-                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '02')) //Valor referencial unitario por ¡tem en operaciones no onerosas
+                //            //begin ULN::KFA 001 2020.05.22 ++
+                //             if (SalesInvLine."VAT Bus. Posting Group" = EBSetup."VAT Bus. Posting Group FT") then
+                //              AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount',FormatNumber(SalesInvLine."Unit Price"))) //Precio de venta unitario por ítem y código
+                //             else begin
+                //                fnGetPriceAmountWithoutDscto(SalesInvLine."Line Discount Amount",SalesInvLine.Quantity,lclDsctoUnit);
+                //                AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount',FormatNumber((SalesInvLine."Unit Price" - lclDsctoUnit)* ((100 + SalesInvLine."VAT %")/100)))); //Precio de venta unitario por ¡tem y c¢digo
+                //                end;
+                //             if (SalesInvLine."VAT Bus. Posting Group" = EBSetup."VAT Bus. Posting Group FT") then
+                //              AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode','02')) //Valor referencial unitario por ¡tem en operaciones no onerosas
+                //              else
+                //              //end ULN::KFA 001 2020.05.22 ++
+                AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesInvLine."Unit Price")));
+                if SalesInvHeader."FT Free Title" then
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '02'))
                 else
-                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones onerosas 
-                //AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesInvLine."Unit Price")));
-                //AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones no onerosas 
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones no onerosas 
                 AddLineXMLTemp(CreateXMLTag('elec1:currencyID', GetCurrencyCode(SalesInvHeader."Currency Code")));
                 AddLineXMLTemp('</elec3:AlternativeConditionPrice>');
                 AddLineXMLTemp('</elec2:lAlternativeConditionPrice>');
@@ -980,7 +1037,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp(CreateXMLTag('elec2:TaxableAmount', FormatNumber(SalesInvLine.Amount)));
                 AddLineXMLTemp('<elec2:eTaxCategory>');
                 //AddLineXMLTemp(CreateXMLTag('elec3:ID',CatalogoSunat."Alternative Code"));
-                //XXXXAddLineXMLTemp(CreateXMLTag('elec3:ID', CatalogoSunat."UN ECE 5305"));
+                //XXXXAddLineXMLTemp(CreateXMLTag('elec3:ID', CatalogoSunat."UN ECE 5305"));//ULN::RRR 25/10/2020
                 AddLineXMLTemp(CreateXMLTag('elec3:Percent', FormatNumber(SalesInvLine."VAT %")));
                 AddLineXMLTemp(CreateXMLTag('elec3:TaxExemptionReasonCode', VATPostingSetup."EB VAT Type Affectation"));
                 AddLineXMLTemp('<elec3:eTaxScheme>');
@@ -1055,7 +1112,8 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp(CreateXMLTag('elec2:TaxableAmount', FormatNumber(SalesCrMemoLine.Amount)));
                 AddLineXMLTemp('<elec2:eTaxCategory>');
                 //AddLineXMLTemp(CreateXMLTag('elec3:ID',CatalogoSunat."Alternative Code"));
-                //XXXXAddLineXMLTemp(CreateXMLTag('elec3:ID', CatalogoSunat."UN ECE 5305"));
+                CatalogoSunat.TestField("UN ECE 5305");
+                AddLineXMLTemp(CreateXMLTag('elec3:ID', CatalogoSunat."UN ECE 5305"));
                 AddLineXMLTemp(CreateXMLTag('elec3:Percent', FormatNumber(SalesCrMemoLine."VAT %")));
                 AddLineXMLTemp(CreateXMLTag('elec3:TaxExemptionReasonCode', VATPostingSetup."EB VAT Type Affectation"));
                 AddLineXMLTemp('<elec3:eTaxScheme>');
@@ -1102,7 +1160,7 @@ codeunit 51015 "EB Billing Management"
     var
         LineNo: Integer;
     begin
-        if DebitNote then
+        if NOt DebitNote then
             exit;
         SalesInvLine.Reset;
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
@@ -1383,13 +1441,13 @@ codeunit 51015 "EB Billing Management"
         exit('');
     end;
 
-    local procedure InsertEBLedgerEntry(ShipStatus: Option; LegalStatusCode: Code[10]; ResponseText: Text; ModifyStatus: Boolean)
+    local procedure InsertEBLedgerEntry(ShipStatus: Option; LegalStatusCode: Code[10]; ResponseInStream: InStream; ResponseText: Text; ModifyStatus: Boolean)
     var
         SenderXMLInStream: InStream;
         QRInStream: InStream;
         DocumentType: Option;
     begin
-        //TempFileBlob.CreateInStream(SenderXMLInStream);
+        TempFileBlob.CreateInStream(SenderXMLInStream);
         //if not TempFileBlob.HasValue() then
         //    Message('No existe valor');
         //TempFileBlobResponse.CreateInStream(QRInStream);
@@ -1397,7 +1455,7 @@ codeunit 51015 "EB Billing Management"
             DocumentType := 2
         else
             DocumentType := 1;
-        EBEntry.InsertEBEntryRecord(DocumentType, DocumentNo, LegalDocument, ShipStatus, LegalStatusCode, ResponseText, SenderXMLTempFileBlob, TempFileBlobResponse, ModifyStatus);
+        EBEntry.InsertEBEntryRecord(DocumentType, DocumentNo, LegalDocument, ShipStatus, LegalStatusCode, ResponseText, SenderXMLInStream, ResponseInStream, TempFileBlobResponse, ModifyStatus);
     end;
 
     //----------------------------------------------------
@@ -1451,7 +1509,7 @@ codeunit 51015 "EB Billing Management"
         ShipStatus: Option;
         LineText: Text;
         ToFileName: Text;
-        DialogTitle: Label 'Download File', Comment = 'ESM="Descargar archivo"';
+        DialogTitle: Label 'Download File';
     begin
         case HttpStatusCode of
             200:
@@ -1459,7 +1517,7 @@ codeunit 51015 "EB Billing Management"
                     ReadResponseHttpStatus200(ResponseInStream);
                 end;
             else begin
-                    InsertEBLedgerEntry(0, '', StrSubstNo('Respuesta %1', Format(HttpStatusCode)), false);
+                    InsertEBLedgerEntry(0, '', ResponseInStream, StrSubstNo('Respuesta %1', Format(HttpStatusCode)), false);
                     Message(StrSubstNo('Respuesta %1', Format(HttpStatusCode)));
                 end;
         end;
@@ -1491,20 +1549,35 @@ codeunit 51015 "EB Billing Management"
         if XMLBuffer.FindFirst() then
             repeat
                 case XMLBuffer.Path of
-                    '/s:Envelope/s:Body/sendInvoiceDocumentsResponse/sendInvoiceDocumentsResult/a:Qr':
+                    '/s:Envelope/s:Body/sendInvoiceDocumentsResponse/sendInvoiceDocumentsResult/a:Qr',
+                    '/s:Envelope/s:Body/sendTicketDocumentsResponse/sendTicketDocumentsResult/a:Qr',
+                    '/s:Envelope/s:Body/sendDebitNoteDocumentsResponse/sendDebitNoteDocumentsResult/a:Qr',
+                    '/s:Envelope/s:Body/sendCreditNoteDocumentsResponse/sendCreditNoteDocumentsResult/a:Qr':
                         QrText := XMlBuffer.Value;
-                    '/s:Envelope/s:Body/sendInvoiceDocumentsResponse/sendInvoiceDocumentsResult/a:SunatCode':
+                    '/s:Envelope/s:Body/sendInvoiceDocumentsResponse/sendInvoiceDocumentsResult/a:SunatCode',
+                    '/s:Envelope/s:Body/sendTicketDocumentsResponse/sendTicketDocumentsResult/a:SunatCode',
+                    '/s:Envelope/s:Body/sendDebitNoteDocumentsResponse/sendDebitNoteDocumentsResult/a:SunatCode',
+                    '/s:Envelope/s:Body/sendCreditNoteDocumentsResponse/sendCreditNoteDocumentsResult/a:SunatCode':
                         LegalStatusCode := XMLBuffer.Value;
-                    '/s:Envelope/s:Body/sendInvoiceDocumentsResponse/sendInvoiceDocumentsResult/a:SunatDescription':
+                    '/s:Envelope/s:Body/sendInvoiceDocumentsResponse/sendInvoiceDocumentsResult/a:SunatDescription',
+                    '/s:Envelope/s:Body/sendTicketDocumentsResponse/sendTicketDocumentsResult/a:SunatDescription',
+                    '/s:Envelope/s:Body/sendDebitNoteDocumentsResponse/sendDebitNoteDocumentsResult/a:SunatDescription',
+                    '/s:Envelope/s:Body/sendCreditNoteDocumentsResponse/sendCreditNoteDocumentsResult/a:SunatDescription':
                         SunatDescription := XMLBuffer.Value;
-                    '/s:Envelope/s:Body/sendInvoiceDocumentsResponse/sendInvoiceDocumentsResult/a:message':
+                    '/s:Envelope/s:Body/sendInvoiceDocumentsResponse/sendInvoiceDocumentsResult/a:message',
+                    '/s:Envelope/s:Body/sendTicketDocumentsResponse/sendTicketDocumentsResult/a:messag',
+                    '/s:Envelope/s:Body/sendDebitNoteDocumentsResponse/sendDebitNoteDocumentsResult/a:messag',
+                    '/s:Envelope/s:Body/sendCreditNoteDocumentsResponse/sendCreditNoteDocumentsResult/a:messag':
                         EBMessage := XMLBuffer.Value;
-                    '/s:Envelope/s:Body/sendInvoiceDocumentsResponse/sendInvoiceDocumentsResult/a:status':
+                    '/s:Envelope/s:Body/sendInvoiceDocumentsResponse/sendInvoiceDocumentsResult/a:status',
+                    '/s:Envelope/s:Body/sendTicketDocumentsResponse/sendTicketDocumentsResult/a:status',
+                    '/s:Envelope/s:Body/sendDebitNoteDocumentsResponse/sendDebitNoteDocumentsResult/a:status',
+                    '/s:Envelope/s:Body/sendCreditNoteDocumentsResponse/sendCreditNoteDocumentsResult/a:status':
                         IsFalse := XMLBuffer.Value = 'false';
                 end;
             until XMlBuffer.Next() = 0;
         if IsFalse then begin
-            InsertEBLedgerEntry(0, LegalStatusCode, EBMessage, false);
+            InsertEBLedgerEntry(0, LegalStatusCode, ResponseInStream, EBMessage, false);
             Message(StrSubstNo(ErrorEB, LegalStatusCode, SunatDescription, EBMessage));
             exit;
         end;
@@ -1521,7 +1594,7 @@ codeunit 51015 "EB Billing Management"
                         '99':
                             ShipStatus := 3;
                     end;
-                    InsertEBLedgerEntry(ShipStatus, LegalStatusCode, SunatDescription, true);
+                    InsertEBLedgerEntry(ShipStatus, LegalStatusCode, ResponseInStream, SunatDescription, true);
                 end;
             GetFileDocument:
                 begin
@@ -1776,9 +1849,30 @@ codeunit 51015 "EB Billing Management"
         if SalesHeader."Legal Status" <> SalesHeader."Legal Status"::Success then
             Error(ErrorDocument, SalesHeader."Legal Status");
         SetNoSerie(SalesHeader."Posting No. Series");
+        if (SalesHeader."VAT Registration No."[1] = '2') and (SalesHeader."Legal Document" = '03') then
+            Error('No puede generar una boleta de venta para el proveedor %1.', SalesHeader."VAT Registration No.");
         CheckNoSeries();
         CheckPrePostCustomer(SalesHeader);
         CheckPrePostSales(SalesHeader);
+    end;
+
+    local procedure checkPrePostAccount(var SalesHeader: Record "Sales Header")
+    var
+        Account: Record "G/L Account";
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.Reset();
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                if SalesLine.Type = SalesLine.Type::"G/L Account" then begin
+                    Account.Reset();
+                    Account.SetRange("No.", SalesLine."No.");
+                    if Account.FindSet() then
+                        Account.TestField("EB Legal Item Code");
+                end;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure CheckPrePostCustomer(var SalesHeader: Record "Sales Header")
@@ -1799,7 +1893,7 @@ codeunit 51015 "EB Billing Management"
         SalesHeader.TestField("EB Type Operation Document");
         SalesHeader.TestField("VAT Registration No.");
         SalesHeader.TestField("VAT Registration Type");
-        if SalesHeader."Legal Document" in ['1', '6'] then begin
+        if SalesHeader."VAT Registration Type" in ['1', '6'] then begin
             SalesHeader.TestField("Sell-to Country/Region Code");
             SalesHeader.TestField("Sell-to Post Code");
             SalesHeader.TestField("Sell-to City");
@@ -1881,6 +1975,12 @@ codeunit 51015 "EB Billing Management"
     end;
 
     local procedure CheckPrePostSalesLine(var SalesHeader: Record "Sales Header")
+    var
+        IsDiscountOK: Boolean;
+        IsDiscountHeader: Boolean;
+        IsDiscountLine: Boolean;
+        ItemValidation: Record Item;
+        GLAcc: Record "G/L Account";
     begin
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -1895,16 +1995,44 @@ codeunit 51015 "EB Billing Management"
         if not SalesLine.IsEmpty then
             Error(ErrorEnterInLine, SalesLine.FieldCaption("Unit Price"), SalesLine."Line No.");
         SalesLine.SetRange(Amount);
-        SalesLine.SetFilter("Inv. Discount Amount", '<>%1', 0);
-        if not SalesLine.IsEmpty then
-            SalesHeader.TestField("EB Charge/Discount Code");
-        if (SalesHeader."EB Charge/Discount Code" <> '') and (SalesHeader.IsEmpty) then
-            Error(ErrorDsctLine, SalesHeader.FieldCaption("EB Charge/Discount Code"), SalesHeader."EB Charge/Discount Code");
-        SalesLine.SetRange("Inv. Discount Amount");
+        SalesLine.SetFilter("Line Discount %", '<>%1', 0);
+        IsDiscountHeader := SalesHeader."EB Motive discount code" <> '';
+        if not IsDiscountHeader then begin
+            if not SalesLine.IsEmpty then begin
+                SalesLine.SetFilter("EB Motive discount code", '<>%1', '');
+                if SalesLine.IsEmpty then
+                    Error(ErrorDsctLine, SalesHeader.FieldCaption("EB Motive discount code"), SalesHeader."EB Motive discount code");
+                SalesLine.SetRange("EB Motive discount code");
+            end;
+        end else
+            if not SalesLine.IsEmpty then begin
+                SalesLine.SetFilter("EB Motive discount code", '<>%1', '');
+                if SalesLine.IsEmpty then
+                    Error(ErrorMotiveDsctLine);
+                SalesLine.SetRange("EB Motive discount code");
+            end;
+        SalesLine.SetRange("Line Discount %");
+        if not IsDiscountHeader then begin
+            SalesLine.SetFilter("Inv. Discount Amount", '<>%1', 0);
+            if not SalesLine.IsEmpty then
+                SalesHeader.TestField("EB Motive discount code");
+        end;
         if SalesLine.FindFirst() then
             repeat
                 CheckUnitOfMeasure();
                 CheckSetupElectroniInvoice();
+                case SalesLine.Type of
+                    SalesLine.Type::"G/L Account":
+                        begin
+                            GLAcc.Get(SalesLine."No.");
+                            GLAcc.TestField("EB Legal Item Code");
+                        end;
+                    SalesLine.Type::"Item":
+                        begin
+                            ItemValidation.Get(SalesLine."No.");
+                            ItemValidation.TestField("EB Legal Item Code");
+                        end;
+                end;
             until SalesLine.Next() = 0;
     end;
 
@@ -1934,8 +2062,7 @@ codeunit 51015 "EB Billing Management"
 
     local procedure CheckNoSeries()
     var
-        ErrorNoSerie: Label 'The series %1 is not electronic.', Comment = 'ESM="La serie %1 no es electrónica."';
-    //TextConst ENU = 'The series %1 is not electronic.';
+        ErrorNoSerie: Label 'The series %1 is not electronic.';
     begin
         if not NoSeries."EB Electronic Bill" then
             Error(ErrorNoSerie, NoSeries.Code);
@@ -1952,27 +2079,29 @@ codeunit 51015 "EB Billing Management"
 
     local procedure CheckGetSetup()
     begin
-        with EBSetup do begin
-            TestField("EB URI Service");
-            TestField("EB Invoice");
-            TestField("EB Credit Note");
-            TestField("EB Debit Note");
-            TestField("EB Voided Document");
-            TestField("EB Summary Documents");
-            TestField("EB Get PDF");
-            TestField("EB Get Ticket Status");
-            // TestField("EB Get QR");
-            TestField("EB Validate Summary Document");
-        end;
-        with CompanyInfo do begin
-            TestField("VAT Registration No.");
-            TestField("VAT Registration Type");
-            TestField(Address);
-            TestField("Country/Region Code");
-            TestField("Post Code");
-            TestField(City);
-            TestField(County);
-        end;
+        EBSetup.TestField("EB URI Service");
+        EBSetup.TestField("EB Invoice");
+        EBSetup.TestField("EB Credit Note");
+        EBSetup.TestField("EB Debit Note");
+        EBSetup.TestField("EB Voided Document");
+        EBSetup.TestField("EB Summary Documents");
+        EBSetup.TestField("EB Get PDF");
+        EBSetup.TestField("EB Get Ticket Status");
+        // TestField("EB Get QR");
+        EBSetup.TestField("EB Validate Summary Document");
+        CompanyInfo.TestField("VAT Registration No.");
+        CompanyInfo.TestField("VAT Registration Type");
+        CompanyInfo.TestField(Address);
+        CompanyInfo.TestField("Country/Region Code");
+        CompanyInfo.TestField("Post Code");
+        CompanyInfo.TestField(City);
+        CompanyInfo.TestField(County);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeFilterNoSeries', '', false, false)]
+    local procedure SetOnBeforeFilterNoSeries(var NoSeries: Record "No. Series"; var SalesHeader: Record "Sales Header")
+    begin
+        NoSeries.SetRange("EB Electronic Bill", SalesHeader."EB Electronic Bill");
     end;
 
     var
@@ -2011,25 +2140,16 @@ codeunit 51015 "EB Billing Management"
         FileType: Text;
         DescriptionStatusQR: Text;
         SOAPAction: Text;
-        ErrorElectronicMsg: Label 'Can´t select an electronic series for a non-electronic document.', Comment = 'ESM="No se puede seleccionar una serie electrónica para un documento no electrónico."';
-        ErrorUbigeo: Label 'Ubigeo %1 is not valid.', Comment = 'ESM="El Ubigeo %1 no es válido."';
-        ErrorDocument: Label 'Legal document %1 is not valid.', Comment = 'ESM="El documento legal %1 no es válido."';
-        ErrorMessage: Label '%1 %2 is not valid.', Comment = 'ESM="%1 %2 no es válido."';
-        ErrorYouMustValidOne: Label 'You must choose a valid "%1"', Comment = 'ESM="Debes elegir un "%1" válido"';
-        ErrorYouMustValidTwo: Label 'You must choose a valid "%1" or "%2"', Comment = 'ESM="Debes elegir un "%1" o "%2" válido"';
-        ErrorEnterInLine: Label 'Enter %1 in line %2.', Comment = 'ESM="Introduzca %1 en la línea %2."';
-        ErrorCustDocTypeDetrac: Label 'You must choose the document type of Customer 1 or 6 for detraction document.', Comment = 'ESM="Debe elegir el tipo de documento de Cliente 1 o 6 para un documento de detracción."';
-        ErrorDocOpeTypeDetrac: Label 'You must choose Document Operation Type that begin with 10 for detraction document', Comment = 'ESM="Debe elegir el tipo de operación de documento que comienza con 10 para el documento de detracción"';
-        ErrorDsctLine: Label 'There is no discount line, when %1 %2 is configured there must be at least one discount line.', Comment = 'ESM="No hay línea de descuento, cuando se configura %1 %2, debe haber al menos una línea de descuento."';
-        ErrorDetracDoc: Label 'For document without detraction the document operation type should not start with %1', Comment = 'ESM="Para documentos sin detracción, el tipo de operación de documento no debe comenzar con %1"';
-    // ErrorUbigeo: TextConst ENU = 'Ubigeo %1 is not valid.';
-    // ErrorDocument: TextConst ENU = 'Legal document %1 is not valid.';
-    // ErrorMessage: TextConst ENU = '%1 %2 is not valid.';
-    // ErrorYouMustValidOne: TextConst ENU = 'You must choose a valid "%1"';
-    // ErrorYouMustValidTwo: TextConst ENU = 'You must choose a valid "%1" or "%2"';
-    // ErrorEnterInLine: TextConst ENU = 'Enter %1 in line %2.';
-    // ErrorCustDocTypeDetrac: TextConst ENU = 'You must choose the document type of Customer 1 or 6 for detraction document.';
-    // ErrorDocOpeTypeDetrac: TextConst ENU = 'You must choose Document Operation Type that begin with 10 for detraction document';
-    // ErrorDsctLine: TextConst ENU = 'There is no discount line, when %1 %2 is configured there must be at least one discount line.';
-    // ErrorDetracDoc: TextConst ENU = 'For document without detraction the document operation type should not start with %1';
+        ErrorElectronicMsg: Label 'Can´t select an electronic series for a non-electronic document.';
+        ErrorUbigeo: Label 'Ubigeo %1 is not valid.';
+        ErrorDocument: Label 'Legal document %1 is not valid.';
+        ErrorMessage: Label '%1 %2 is not valid.';
+        ErrorYouMustValidOne: Label 'You must choose a valid "%1"';
+        ErrorYouMustValidTwo: Label 'You must choose a valid "%1" or "%2"';
+        ErrorEnterInLine: Label 'Enter %1 in line %2.';
+        ErrorCustDocTypeDetrac: Label 'You must choose the document type of Customer 1 or 6 for detraction document.';
+        ErrorDocOpeTypeDetrac: Label 'You must choose Document Operation Type that begin with 10 for detraction document';
+        ErrorDsctLine: Label 'There is no discount line, when %1 %2 is configured there must be at least one discount line.', Comment = 'ESM="No hay línea de descuento, cuando se configura %1 %2, debe haber al menos una línea con descuento."';
+        ErrorMotiveDsctLine: Label 'You must select the discount reason code on the line.', Comment = 'ESM="Debe de seleccionar motivo de descuento para la linea."';
+        ErrorDetracDoc: Label 'For document without detraction the document operation type should not start with %1';
 }

@@ -1,4 +1,4 @@
-pageextension 51175 "EB Posted Sales Invoice" extends "Posted Sales Invoice"
+pageextension 51210 "EB Posted Sales Credit Memo" extends "Posted Sales Credit Memo"
 {
     layout
     {
@@ -17,13 +17,13 @@ pageextension 51175 "EB Posted Sales Invoice" extends "Posted Sales Invoice"
     {
         addafter(IncomingDocument)
         {
-            action(electronicInvoice)
+            action(electronicCreditMemo)
             {
                 ApplicationArea = All;
-                Caption = 'Electronic Invoice', Comment = 'ESM="Factura Electrónica"';
+                Caption = 'Electronic Credit Memo', Comment = 'ESM="Nota de Cédito Electrónica"';
                 Image = ElectronicDoc;
                 RunObject = page "EB Electronic Bill Entries";
-                RunPageLink = "EB Document No." = field("No."), "EB Document Type" = const(Invoice);
+                RunPageLink = "EB Document No." = field("No."), "EB Document Type" = const("Credit Memo");
             }
         }
     }

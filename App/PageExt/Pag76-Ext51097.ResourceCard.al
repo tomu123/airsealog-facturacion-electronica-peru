@@ -8,7 +8,6 @@ pageextension 51097 "EB Resource Card" extends "Resource Card"
             field("EB Legal Item Code"; "EB Legal Item Code")
             {
                 ApplicationArea = All;
-                Caption = 'Legal Item Code', comment = 'ESM="Código Producto Legal"';
             }
         }
     }

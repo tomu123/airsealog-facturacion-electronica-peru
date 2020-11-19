@@ -8,17 +8,18 @@ pageextension 51048 "EB Posting Setup List" extends "VAT Posting Setup"
             field("EB VAT Type Affectation"; "EB VAT Type Affectation")
             {
                 ApplicationArea = All;
-                Caption = 'VAT Type Affectation', comment = 'ESM="Tipo Afectación IGV"';
             }
             field("EB Tax Type Code"; "EB Tax Type Code")
             {
                 ApplicationArea = All;
-                Caption = 'Tax Type Code', comment = 'ESM="Código Tipo Tributo"';
             }
             field("EB Others Tax Concepts"; "EB Others Tax Concepts")
             {
                 ApplicationArea = All;
-                Caption = 'Others Tax Concepts', comment = 'ESM="Otros Conceptos Tributarios"';
+            }
+            field("EB Type Value Sales"; "EB Type Value Sales")
+            {
+                ApplicationArea = All;
             }
         }
     }

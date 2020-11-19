@@ -24,5 +24,12 @@ tableextension 51051 "EB VAT Posting Setup" extends "VAT Posting Setup"
             TableRelation = "Legal Document"."Legal No." where("Option Type" = const("Catalogue SUNAT"), "Type Code" = const('14'));
             ValidateTableRelation = false;
         }
+        field(51006; "EB Type Value Sales"; Code[10])
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'Type Value Sales';
+            TableRelation = "Legal Document"."Legal No." where("Option Type" = const("Catalogue SUNAT"), "Type Code" = const('11'));
+            ValidateTableRelation = false;
+        }
     }
 }
