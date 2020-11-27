@@ -70,10 +70,12 @@ tableextension 51069 "EB Sales Header" extends "Sales Header"
         field(51120; "Initial Advanced"; Boolean)
         {
             DataClassification = ToBeClassified;
+            Caption = 'Initial Advanced', comment = 'ESM="Anticipo Inicial"';
         }
         field(51121; "Final Advanced"; Boolean)
         {
             DataClassification = ToBeClassified;
+            Caption = 'Final Advanced', comment = 'ESM="Anticipo Final"';
         }
         field(51122; "Invoice Payment Advanced"; Boolean)
         {
@@ -102,15 +104,15 @@ tableextension 51069 "EB Sales Header" extends "Sales Header"
         lclTotalDescontado: Decimal;
         lclSalesInvLineDescontado: Record 113;
     begin
-        // lclGLAccountCode := '';
-        // lclGLSetup.GET;
-        // IF pSalesInvHeader."Currency Code" <> '' THEN BEGIN
-        //     lclGLSetup.TESTFIELD("Account Advanced USD");
-        //     lclGLAccountCode := lclGLSetup."Account Advanced USD";
-        // END ELSE BEGIN
-        //     lclGLSetup.TESTFIELD("Account Advanced PEN");
-        //     lclGLAccountCode := lclGLSetup."Account Advanced PEN";
-        // END;
+        lclGLAccountCode := '';
+        lclGLSetup.GET;
+        IF pSalesInvHeader."Currency Code" <> '' THEN BEGIN
+            lclGLSetup.TESTFIELD("Account Advanced USD");
+            lclGLAccountCode := lclGLSetup."Account Advanced USD";
+        END ELSE BEGIN
+            lclGLSetup.TESTFIELD("Account Advanced PEN");
+            lclGLAccountCode := lclGLSetup."Account Advanced PEN";
+        END;
 
         lclTotalAmountAdvance := 0;
         lclTotalNewAdvanceDocument := 0;

@@ -1,5 +1,15 @@
 pageextension 51209 "EB Posted Sales Invoices" extends "Posted Sales Invoices"
 {
+    layout
+    {
+        addafter("Remaining Amount")
+        {
+            field("Total Applied. Advance"; "Total Applied. Advance")
+            {
+                ApplicationArea = All;
+            }
+        }
+    }
     actions
     {
         // Add changes to page actions here

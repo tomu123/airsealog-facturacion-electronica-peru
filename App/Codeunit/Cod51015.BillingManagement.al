@@ -345,13 +345,13 @@ codeunit 51015 "EB Billing Management"
         if SalesInvHeader."Sales Detraction" then begin
             AddLineXMLTemp('<elec1:Note>');
             AddLineXMLTemp(CreateXMLTag('elec1:languageLocaleID', '2006'));
-            AddLineXMLTemp(CreateXMLTag('elec1:value', '<![CDATA[LEYendA: OPERACIÓN SUJETA A DETRACCIÓN]]>'));
+            AddLineXMLTemp(CreateXMLTag('elec1:value', '<![CDATA[LEYENDA: OPERACIÓN SUJETA A DETRACCIÓN]]>'));
             AddLineXMLTemp('</elec1:Note>');
         end;
         if SalesInvHeader."FT Free Title" then begin
             AddLineXMLTemp('<elec1:Note>');
             AddLineXMLTemp(CreateXMLTag('elec1:languageLocaleID', '1002'));
-            AddLineXMLTemp(CreateXMLTag('elec1:value', '<![CDATA[LEYendA: TRANSFERENCIA GRATUITA DE UN BIEN Y/O SERVICIO PRESTADO GRATUITAMENTE]]>'));
+            AddLineXMLTemp(CreateXMLTag('elec1:value', '<![CDATA[LEYENDA: TRANSFERENCIA GRATUITA DE UN BIEN Y/O SERVICIO PRESTADO GRATUITAMENTE]]>'));
             AddLineXMLTemp('</elec1:Note>');
         end;
         AddLineXMLTemp('</elec:lNote>');
@@ -519,31 +519,32 @@ codeunit 51015 "EB Billing Management"
     begin
         if not (Invoice or Ticket) then
             exit;
-        if not (SalesInvHeader."Prepayment Invoice") then //Factura final anticipo
+        if not (SalesInvHeader."Final Advanced") then //Factura final anticipo
             exit;
 
-        /*SalesInvLine.Reset;
+        SalesInvLine.Reset;
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
-        SalesInvLine.SetFilter("No. factura anticipo", '<>%1', '');
-        if SalesInvLine.FindFirst begin
+        SalesInvLine.SetFilter("EB No. Invoice Advanced", '<>%1', '');
+        if SalesInvLine.FindFirst then begin
             AddLineXMLTemp('<elec:lPrepaidPayment>');
             repeat
-                PrePaymentSalesInvHdr.Get(SalesInvLine."No. factura anticipo");
+                PrePaymentSalesInvHdr.Get(SalesInvLine."EB No. Invoice Advanced");
                 //AddLineXMLTemp('<elec:ePrepaidPayment>');
-                AddLineXMLTemp('<elecl:PrepaidPayment>');
-                AddLineXMLTemp(CreateXMLTag('elec1:ID', SalesInvLine."No. factura anticipo"));//Add develope
+                AddLineXMLTemp('<elec1:PrepaidPayment>');
+                AddLineXMLTemp(CreateXMLTag('elec1:ID', SalesInvLine."EB No. Invoice Advanced"));//Add develope
                 AddLineXMLTemp(CreateXMLTag('elec1:PaidAmount', FormatNumber(Abs(SalesInvLine."Amount Including VAT"))));
                 AddLineXMLTemp(CreateXMLTag('elec1:currencyID', GetCurrencyCode(PrePaymentSalesInvHdr."Currency Code")));
                 AddLineXMLTemp(CreateXMLTag('elec1:PaidDate', FormatDate(PrePaymentSalesInvHdr."Due Date")));
                 AddLineXMLTemp(CreateXMLTag('elec1:InstructionID', PrePaymentSalesInvHdr."VAT Registration Type"));
                 AddLineXMLTemp(CreateXMLTag('elec1:ID_schemeID', PrePaymentSalesInvHdr."Legal Document"));
-                AddLineXMLTemp(CreateXMLTag('elec1:DocumentTypeCode', PrePaymentSalesInvHdr."EB TAX Ref. Document Type"));
+                AddLineXMLTemp(CreateXMLTag('elec1:DocumentTypeCode', '02'));
+                //AddLineXMLTemp(CreateXMLTag('elec1:DocumentTypeCode', PrePaymentSalesInvHdr."EB TAX Ref. Document Type"));
                 AddLineXMLTemp(CreateXMLTag('elec1:PaidTaxableAmount', FormatNumber(Abs(SalesInvLine.Amount))));
                 AddLineXMLTemp(CreateXMLTag('elec1:ReceivedDate', FormatDate(PrePaymentSalesInvHdr."Document Date")));
-                AddLineXMLTemp('</elecl:PrepaidPayment>');
+                AddLineXMLTemp('</elec1:PrepaidPayment>');
             until SalesInvLine.NEXT = 0;
             AddLineXMLTemp('</elec:lPrepaidPayment>');
-        end;*/
+        end;
     end;
 
     local procedure TotalSaleValueXMLPart()
@@ -556,9 +557,32 @@ codeunit 51015 "EB Billing Management"
     begin
         GetGlobalDiscount(TaxBase, TotalAmtDiscount, PercentageAmt, ReasonCode);
         if Invoice or Ticket then begin
-            if (Invoice or Ticket) and (TotalAmtDiscount <> 0) then begin
+            if (Invoice or Ticket) and ((TotalAmtDiscount <> 0)) then begin
                 AddLineXMLTemp('<elec:eAllowancecharge>');
-                AddLineXMLTemp(CreateXMLTag('elec1:AllowanceChargeReasonCode', Format(ReasonCode)));
+                if SalesInvHeader."Final Advanced" then
+                    AddLineXMLTemp(CreateXMLTag('elec1:AllowanceChargeReasonCode', Format(04)))
+                else
+                    AddLineXMLTemp(CreateXMLTag('elec1:AllowanceChargeReasonCode', Format(ReasonCode)));
+                AddLineXMLTemp(CreateXMLTag('elec1:Amount', FormatNumber(TotalAmtDiscount)));
+                AddLineXMLTemp(CreateXMLTag('elec1:Amount_currencyID', GetCurrencyCode(SalesInvHeader."Currency Code")));
+                AddLineXMLTemp(CreateXMLTag('elec1:BaseAmount', FormatNumber(TaxBase)));
+                AddLineXMLTemp(CreateXMLTag('elec1:ChargeIndicator', '<![CDATA[false]]>'));
+                AddLineXMLTemp(CreateXMLTag('elec1:MultiplierFactorNumeric', Format(Round(TotalAmtDiscount / TaxBase, 0.0001), 0, '<Precision,5:5><Standard Format,2>')));
+                AddLineXMLTemp('</elec:eAllowancecharge>');
+            end;
+            if (Invoice or Ticket) and (SalesInvHeader."Final Advanced") then begin
+                SalesInvLine.Reset;
+                SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
+                SalesInvLine.SetFilter("EB No. Invoice Advanced", '<>%1', '');
+                if SalesInvLine.FindFirst then begin
+                    TotalAmtDiscount := SalesInvLine.Amount;
+                    TotalAmtDiscount := Abs(TotalAmtDiscount);
+                end;
+                AddLineXMLTemp('<elec:eAllowancecharge>');
+                if SalesInvHeader."Final Advanced" then
+                    AddLineXMLTemp(CreateXMLTag('elec1:AllowanceChargeReasonCode', '04'))
+                else
+                    AddLineXMLTemp(CreateXMLTag('elec1:AllowanceChargeReasonCode', Format(ReasonCode)));
                 AddLineXMLTemp(CreateXMLTag('elec1:Amount', FormatNumber(TotalAmtDiscount)));
                 AddLineXMLTemp(CreateXMLTag('elec1:Amount_currencyID', GetCurrencyCode(SalesInvHeader."Currency Code")));
                 AddLineXMLTemp(CreateXMLTag('elec1:BaseAmount', FormatNumber(TaxBase)));
@@ -568,7 +592,10 @@ codeunit 51015 "EB Billing Management"
             end;
             GetTotalAmtDiscountLine(TaxBase, TotalDiscountLine);
             AddLineXMLTemp('<elec:eLegalMonetaryTotal>');
-            AddLineXMLTemp(CreateXMLTag('elec1:AllowanceTotalAmount', FormatNumber(TotalAmtDiscount + TotalDiscountLine))); //Total de Descuentos.  
+            if SalesInvHeader."Final Advanced" then
+                AddLineXMLTemp(CreateXMLTag('elec1:AllowanceTotalAmount', FormatNumber(0)))
+            else
+                AddLineXMLTemp(CreateXMLTag('elec1:AllowanceTotalAmount', FormatNumber(TotalAmtDiscount + TotalDiscountLine))); //Total de Descuentos.  
             AddLineXMLTemp(CreateXMLTag('elec1:CharGetotalAmount', FormatNumber(0))); //Sumatoria otros Cargos
             AddLineXMLTemp(CreateXMLTag('elec1:LegalMonetaryTotal_currencyID', GetCurrencyCode(SalesInvHeader."Currency Code")));
             AddLineXMLTemp(CreateXMLTag('elec1:LineExtensionAmount', FormatNumber(GetTotalGrossSellingValue))); //Total Valor de Venta sin IGV
@@ -578,11 +605,14 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp(CreateXMLTag('elec1:PayableAmount', FormatNumber(SalesInvHeader."Amount Including VAT"))); //Importe total de la venta incluido IGV 
             AddLineXMLTemp(CreateXMLTag('elec1:PayableRoundingAmount', Format(0)));
             if GetTotalPrePaidPaymentAmount <> 0 then
-                AddLineXMLTemp(CreateXMLTag('elec1:PrepaidAmount', Format(GetTotalPrePaidPaymentAmount)));
+                AddLineXMLTemp(CreateXMLTag('elec1:PrepaidAmount', FormatNumber(GetTotalPrePaidPaymentAmount)));
             if SalesInvHeader."FT Free Title" then
                 AddLineXMLTemp(CreateXMLTag('elec1:TaxInclusiveAmount', FormatNumber(0))) //Total Precio de Venta.
             else
-                AddLineXMLTemp(CreateXMLTag('elec1:TaxInclusiveAmount', FormatNumber(SalesInvHeader."Amount Including VAT"))); //Total Precio de Venta.
+                if GetTotalPrePaidPaymentAmount <> 0 then
+                    AddLineXMLTemp(CreateXMLTag('elec1:TaxInclusiveAmount', FormatNumber(GetTotalPrePaidPaymentAmount)))
+                else
+                    AddLineXMLTemp(CreateXMLTag('elec1:TaxInclusiveAmount', FormatNumber(SalesInvHeader."Amount Including VAT"))); //Total Precio de Venta.
             AddLineXMLTemp('</elec:eLegalMonetaryTotal>');
         end;
 
@@ -757,17 +787,18 @@ codeunit 51015 "EB Billing Management"
         Clear(TotalPrePaidAmt);
         if not (Invoice or Ticket) then
             exit(0);
-        /*if SalesInvHeader."Factura final anticipo" then
+        if not SalesInvHeader."Final Advanced" then
             exit(0);
+        //SalesInvLine."EB No. Invoice Advanced"
 
         SalesInvLine.Reset;
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
-        SalesInvLine.SetFilter("No. factura anticipo", '<>%1', '');
+        SalesInvLine.SetFilter("EB No. Invoice Advanced", '<>%1', '');
         if SalesInvLine.FindFirst() then
             repeat
                 TotalPrePaidAmt += Abs(SalesInvLine."Amount Including VAT");
             until SalesInvLine.NEXT = 0;
-        exit(TotalPrePaidAmt);*/
+        exit(TotalPrePaidAmt);
     end;
 
     local procedure TotalTaxAmtXMLPart()
@@ -777,6 +808,7 @@ codeunit 51015 "EB Billing Management"
     begin
         AddLineXMLTemp('<elec:lTaxTotal>');
         AddLineXMLTemp('<elec1:TaxTotal>');
+
         GetTotalAmtTaxTypeCode(TaxableAmount, TaxAmount);
         AddLineXMLTemp(CreateXMLTag('elec1:TaxAmount', FormatNumber(TaxAmount)));
         AddLineXMLTemp('<elec1:eTaxSubtotal>');
@@ -787,6 +819,10 @@ codeunit 51015 "EB Billing Management"
         if CatalogoSunat.FindFirst() then
             repeat
                 if GetAmtTaxTypeCode(CatalogoSunat."Legal No.", TaxableAmount, TaxAmount) then begin
+                    if SalesInvHeader."Final Advanced" then begin
+                        TaxAmount := 0;
+                        TaxableAmount := 0;
+                    end;
                     AddLineXMLTemp('<elec2:TaxSubtotal>');
                     if CreditNote then
                         AddLineXMLTemp(CreateXMLTag('elec2:currencyID', GetCurrencyCode(SalesCrMemoHdr."Currency Code")))
@@ -915,6 +951,7 @@ codeunit 51015 "EB Billing Management"
         PriceIncludeVAT: Decimal;
         UnitDiscount: Decimal;
         LineAmountDecimal: Decimal;
+        DsctoUnit: Decimal;
     begin
         if not (Invoice or Ticket) then
             exit;
@@ -976,7 +1013,10 @@ codeunit 51015 "EB Billing Management"
                 //if SalesInvLine.  "Standard Sales Code" <> '' then SalesLine.
                 //    AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesInvLine."Standard Sales Code")))
                 //else
-                AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesInvLine."No.")));
+                if SalesInvLine."Standard Sales Code" <> '' then
+                    AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesInvLine."Standard Sales Code")))
+                else
+                    AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesInvLine."No.")));
                 AddLineXMLTemp('</elec1:eItem>');
                 AddLineXMLTemp('<elec1:ePrice>');
                 if (SalesInvLine."VAT Bus. Posting Group" = LSetup."FT VAT Bus. Posting Group") then
@@ -997,7 +1037,8 @@ codeunit 51015 "EB Billing Management"
                         //PriceAmountDec := PriceIncludeVAT - UnitDiscount;
                         //PriceAmountDec := Round((SalesInvLine."Amount Including VAT" - SalesInvLine."Inv. Discount Amount") / SalesInvLine.Quantity, 0.01);
                     end;
-                    AddLineXMLTemp(CreateXMLTag('elec2:PriceAmount', FormatNumber(PriceAmountDec)));
+                    AddLineXMLTemp(CreateXMLTag('elec2:PriceAmount', FormatNumber(SalesInvLine."Unit Price")));//Sin inc. igv
+                    //AddLineXMLTemp(CreateXMLTag('elec2:PriceAmount', FormatNumber(PriceAmountDec)));
                 end;
                 //++ ULN::RRR Descuentos globales 06/11/2020
 
@@ -1007,20 +1048,14 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec1:ePricingReference>');
                 AddLineXMLTemp('<elec2:lAlternativeConditionPrice>');
                 AddLineXMLTemp('<elec3:AlternativeConditionPrice>');
-                //            //begin ULN::KFA 001 2020.05.22 ++
-                //             if (SalesInvLine."VAT Bus. Posting Group" = EBSetup."VAT Bus. Posting Group FT") then
-                //              AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount',FormatNumber(SalesInvLine."Unit Price"))) //Precio de venta unitario por ítem y código
-                //             else begin
-                //                fnGetPriceAmountWithoutDscto(SalesInvLine."Line Discount Amount",SalesInvLine.Quantity,lclDsctoUnit);
-                //                AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount',FormatNumber((SalesInvLine."Unit Price" - lclDsctoUnit)* ((100 + SalesInvLine."VAT %")/100)))); //Precio de venta unitario por ¡tem y c¢digo
-                //                end;
-                //             if (SalesInvLine."VAT Bus. Posting Group" = EBSetup."VAT Bus. Posting Group FT") then
-                //              AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode','02')) //Valor referencial unitario por ¡tem en operaciones no onerosas
-                //              else
-                //              //end ULN::KFA 001 2020.05.22 ++
-                AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesInvLine."Unit Price")));
-                if SalesInvHeader."FT Free Title" then
-                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '02'))
+                if (SalesInvLine."VAT Bus. Posting Group" = LSetup."FT VAT Bus. Posting Group") then
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesInvLine."Unit Price"))) //Precio de venta unitario por ítem y código
+                else begin
+                    fnGetPriceAmountWithoutDscto(SalesInvLine."Line Discount Amount", SalesInvLine.Quantity, DsctoUnit);
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber((SalesInvLine."Unit Price" - DsctoUnit) * ((100 + SalesInvLine."VAT %") / 100)))); //Precio de venta unitario por ¡tem y c¢digo
+                end;
+                if (SalesInvLine."VAT Bus. Posting Group" = LSetup."FT VAT Bus. Posting Group") then
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '02')) //Valor referencial unitario por ¡tem en operaciones no onerosas
                 else
                     AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones no onerosas 
                 AddLineXMLTemp(CreateXMLTag('elec1:currencyID', GetCurrencyCode(SalesInvHeader."Currency Code")));
@@ -1036,8 +1071,8 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp(CreateXMLTag('elec2:TaxAmount', FormatNumber(SalesInvLine."Amount Including VAT" - SalesInvLine.Amount)));
                 AddLineXMLTemp(CreateXMLTag('elec2:TaxableAmount', FormatNumber(SalesInvLine.Amount)));
                 AddLineXMLTemp('<elec2:eTaxCategory>');
-                //AddLineXMLTemp(CreateXMLTag('elec3:ID',CatalogoSunat."Alternative Code"));
-                //XXXXAddLineXMLTemp(CreateXMLTag('elec3:ID', CatalogoSunat."UN ECE 5305"));//ULN::RRR 25/10/2020
+                //AddLineXMLTemp(CreateXMLTag('elec3:ID', CatalogoSunat."Alternative Code"));
+                AddLineXMLTemp(CreateXMLTag('elec3:ID', CatalogoSunat."UN ECE 5305"));//ULN::RRR 25/10/2020
                 AddLineXMLTemp(CreateXMLTag('elec3:Percent', FormatNumber(SalesInvLine."VAT %")));
                 AddLineXMLTemp(CreateXMLTag('elec3:TaxExemptionReasonCode', VATPostingSetup."EB VAT Type Affectation"));
                 AddLineXMLTemp('<elec3:eTaxScheme>');
@@ -1092,7 +1127,11 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec3:AlternativeConditionPrice>');
                 //AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount',FormatNumber(SalesCrMemoLine."Unit Price"))); //Precio de venta unitario por ítem
                 AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesCrMemoLine."Unit Price"))); //Precio de venta unitario por ítem
-                AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones no onerosas 
+                                                                                                               //AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones no onerosas 
+                if (SalesCrMemoLine."VAT Bus. Posting Group" = LSetup."FT VAT Bus. Posting Group") then
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '02')) //Valor referencial unitario por ¡tem en operaciones no onerosas
+                else
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones no onerosas 
                 AddLineXMLTemp(CreateXMLTag('elec3:currencyID', GetCurrencyCode(SalesCrMemoHdr."Currency Code")));
                 AddLineXMLTemp('</elec3:AlternativeConditionPrice>');
                 AddLineXMLTemp('</elec2:lAlternativeConditionPrice>');
@@ -1137,7 +1176,10 @@ codeunit 51015 "EB Billing Management"
                 //XXXXif SalesCrMemoLine."Standard Sales Code" <> '' then
                 //XXXX    AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesCrMemoLine."Standard Sales Code")))
                 //XXXXelse
-                AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesCrMemoLine."No.")));
+                if SalesCrMemoLine."Standard Sales Code" <> '' then
+                    AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesCrMemoLine."Standard Sales Code")))
+                else
+                    AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesCrMemoLine."No.")));
                 AddLineXMLTemp('</elec1:eItem>');
                 AddLineXMLTemp('<elec1:ePrice>');
                 //begin ULN::KFA 001 2020.05.22 ++
@@ -1159,6 +1201,7 @@ codeunit 51015 "EB Billing Management"
     local procedure DetailedDebitNoteXMLPart()
     var
         LineNo: Integer;
+        DsctoUnit: Decimal;
     begin
         if NOt DebitNote then
             exit;
@@ -1186,8 +1229,18 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec1:ePricingReference>');
                 AddLineXMLTemp('<elec2:lAlternativeConditionPrice>');
                 AddLineXMLTemp('<elec3:AlternativeConditionPrice>');
-                AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesInvLine."Unit Price"))); //Precio de venta unitario por ítem y código
-                AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones no onerosas 
+                //AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesInvLine."Unit Price"))); //Precio de venta unitario por ítem y código
+                //AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones no onerosas 
+                if (SalesInvLine."VAT Bus. Posting Group" = LSetup."FT VAT Bus. Posting Group") then
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber(SalesInvLine."Unit Price"))) //Precio de venta unitario por ítem y código
+                else begin
+                    fnGetPriceAmountWithoutDscto(SalesInvLine."Line Discount Amount", SalesInvLine.Quantity, DsctoUnit);
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceAmount', FormatNumber((SalesInvLine."Unit Price" - DsctoUnit) * ((100 + SalesInvLine."VAT %") / 100)))); //Precio de venta unitario por ¡tem y c¢digo
+                end;
+                if (SalesInvLine."VAT Bus. Posting Group" = LSetup."FT VAT Bus. Posting Group") then
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '02')) //Valor referencial unitario por ¡tem en operaciones no onerosas
+                else
+                    AddLineXMLTemp(CreateXMLTag('elec3:PriceTypeCode', '01')); //Valor referencial unitario por ítem en operaciones no onerosas 
                 AddLineXMLTemp(CreateXMLTag('elec1:currencyID', GetCurrencyCode(SalesInvHeader."Currency Code")));
                 AddLineXMLTemp('</elec3:AlternativeConditionPrice>');
                 AddLineXMLTemp('</elec2:lAlternativeConditionPrice>');
@@ -1226,7 +1279,10 @@ codeunit 51015 "EB Billing Management"
                 //if SalesInvLine."Standard Sales Code" <> '' then
                 //    AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesInvLine."Standard Sales Code")))
                 //else
-                AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesInvLine."No.")));
+                if SalesInvLine."Standard Sales Code" <> '' then
+                    AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesInvLine."Standard Sales Code")))
+                else
+                    AddLineXMLTemp(CreateXMLTag('elec2:eSellersItemIdentification', CreateXMLTag('elec3:ID', SalesInvLine."No.")));
                 AddLineXMLTemp('</elec1:eItem>');
                 AddLineXMLTemp('<elec1:ePrice>');
                 if SalesInvHeader."FT Free Title" then
@@ -1304,13 +1360,13 @@ codeunit 51015 "EB Billing Management"
             AddLineXMLTemp('</elec1:lPersonalizacionBanco>');
         end;
         AddLineXMLTemp('<elec1:lPersonalizacionEtiqueta>');
-        if (Invoice or Ticket) and (SalesInvHeader."External Document No." <> '') then begin
-            AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
-            AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
-            AddLineXMLTemp(CreateXMLTag('elec2:Title', 'ordenCompra'));
-            AddLineXMLTemp(CreateXMLTag('elec2:Value', ForMAT(SalesInvHeader."External Document No.")));
-            AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
-        end;
+        // if (Invoice or Ticket) and (SalesInvHeader."External Document No." <> '') then begin
+        //     AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+        //     AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+        //     AddLineXMLTemp(CreateXMLTag('elec2:Title', 'ordenCompra'));
+        //     AddLineXMLTemp(CreateXMLTag('elec2:Value', ForMAT(SalesInvHeader."External Document No.")));
+        //     AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+        // end;
         /*if (Invoice or Ticket or DebitNote) and (SalesInvHeader."Job No." <> '') then begin
             AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
             AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Footer'));
@@ -1325,13 +1381,241 @@ codeunit 51015 "EB Billing Management"
             AddLineXMLTemp(CreateXMLTag('elec2:Value', 'Somos AGENTES DE RETENCION por R.S. ' + LSetup."Retention Resolution Number"));
             AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
         end;
-        if GetShipmentNo() <> '' then begin
-            AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
-            AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
-            AddLineXMLTemp(CreateXMLTag('elec2:Title', 'NroGuia'));
-            AddLineXMLTemp(CreateXMLTag('elec2:Value', GetShipmentNo()));
-            AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+
+        // if GetShipmentNo() <> '' then begin
+        //     AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+        //     AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+        //     AddLineXMLTemp(CreateXMLTag('elec2:Title', 'NroGuia'));
+        //     AddLineXMLTemp(CreateXMLTag('elec2:Value', GetShipmentNo()));
+        //     AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+        // end;
+
+        //BEGIN: Personalización Airsealog
+        if CreditNote then begin
+            if SalesCrMemoHdr."Shortcut Dimension 3 Code" <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Job'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Shortcut Dimension 3 Code"));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr."BL No." <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'BL'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."BL No."));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr."Shipper Name" <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Shipper'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Shipper Name"));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr."Consignee Name" <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Consignee'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Consignee Name"));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr."Routing No." <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Routing'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Routing No."));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr.Origin <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Origen'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr.Origin));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr.Placa <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'BarcoVuelo'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr.Placa));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr."Carrier Name" <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Carrier'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Carrier Name"));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr.Destination <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Destino'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr.Destination));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr."Get Out Date" <> 0D then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'FechaETA'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', FormatDate(SalesCrMemoHdr."Get Out Date")));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr."Arrived Date" <> 0D then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'FechaETD'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', FormatDate(SalesCrMemoHdr."Arrived Date")));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr."Cargowise Invoice No." <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'CorrelativoInterno'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Cargowise Invoice No."));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesCrMemoHdr."No. Sales Shipment" <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'NroGuia'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."No. Sales Shipment"));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+            if SalesCrMemoHdr."Purchase order No." <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'OrdenCompra'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', Format(SalesCrMemoHdr."Purchase order No.")));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+        end else begin
+            if SalesInvHeader."Shortcut Dimension 3 Code" <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Job'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Shortcut Dimension 3 Code"));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader."BL No." <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'BL'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."BL No."));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader."Shipper Name" <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Shipper'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Shipper Name"));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader."Consignee Name" <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Consignee'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Consignee Name"));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader."Routing No." <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Routing'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Routing No."));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader.Origin <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Origen'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader.Origin));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader.Placa <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'BarcoVuelo'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader.Placa));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader."Carrier Name" <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Carrier'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Carrier Name"));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader.Destination <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Destino'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader.Destination));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader."Get Out Date" <> 0D then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'FechaETA'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', FormatDate(SalesInvHeader."Get Out Date")));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader."Arrived Date" <> 0D then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'FechaETD'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', FormatDate(SalesInvHeader."Arrived Date")));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader."Cargowise Invoice No." <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'CorrelativoInterno'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Cargowise Invoice No."));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader."No. Sales Shipment" <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'NroGuia'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."No. Sales Shipment"));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
+
+            if SalesInvHeader."Purchase order No." <> '' then begin
+                AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
+                AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Title', 'OrdenCompra'));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', Format(SalesInvHeader."Purchase order No.")));
+                AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
+            end;
         end;
+        //END: Personalización Airsealog
         AddLineXMLTemp('</elec1:lPersonalizacionEtiqueta>');
         AddLineXMLTemp('</elec:lPersonalizacionPDF>');
     end;
@@ -1509,7 +1793,7 @@ codeunit 51015 "EB Billing Management"
         ShipStatus: Option;
         LineText: Text;
         ToFileName: Text;
-        DialogTitle: Label 'Download File';
+        DialogTitle: Label 'Download File', comment = 'ESM="Descargar archivo"';
     begin
         case HttpStatusCode of
             200:
@@ -1851,6 +2135,11 @@ codeunit 51015 "EB Billing Management"
         SetNoSerie(SalesHeader."Posting No. Series");
         if (SalesHeader."VAT Registration No."[1] = '2') and (SalesHeader."Legal Document" = '03') then
             Error('No puede generar una boleta de venta para el proveedor %1.', SalesHeader."VAT Registration No.");
+        if SalesHeader."Final Advanced" then begin
+            if (SalesHeader."EB TAX Ref. Document Type" = '') or (SalesHeader."EB Motive discount code" = '') then
+                error('Los campo %1 y %2 no pueden estar vacios', SalesHeader.FieldCaption(SalesHeader."EB TAX Ref. Document Type"), SalesHeader.FieldCaption(SalesHeader."EB Motive discount code"))
+
+        end;
         CheckNoSeries();
         CheckPrePostCustomer(SalesHeader);
         CheckPrePostSales(SalesHeader);
@@ -2062,10 +2351,17 @@ codeunit 51015 "EB Billing Management"
 
     local procedure CheckNoSeries()
     var
-        ErrorNoSerie: Label 'The series %1 is not electronic.';
+        ErrorNoSerie: Label 'The series %1 is not electronic.', comment = 'ESM="La serie %1 no es electónica"';
     begin
         if not NoSeries."EB Electronic Bill" then
             Error(ErrorNoSerie, NoSeries.Code);
+    end;
+
+    local procedure fnGetPriceAmountWithoutDscto(DsctoAmount: Decimal; Qty: Decimal; DsctoUnit: Decimal): Decimal
+    begin
+        Clear(DsctoUnit);
+        if Qty <> 0 then
+            DsctoUnit := Round(DsctoAmount / Qty, 0.01, '=');
     end;
 
     local procedure GetSetup(CheckSetup: Boolean)
@@ -2140,16 +2436,16 @@ codeunit 51015 "EB Billing Management"
         FileType: Text;
         DescriptionStatusQR: Text;
         SOAPAction: Text;
-        ErrorElectronicMsg: Label 'Can´t select an electronic series for a non-electronic document.';
-        ErrorUbigeo: Label 'Ubigeo %1 is not valid.';
-        ErrorDocument: Label 'Legal document %1 is not valid.';
-        ErrorMessage: Label '%1 %2 is not valid.';
-        ErrorYouMustValidOne: Label 'You must choose a valid "%1"';
-        ErrorYouMustValidTwo: Label 'You must choose a valid "%1" or "%2"';
-        ErrorEnterInLine: Label 'Enter %1 in line %2.';
-        ErrorCustDocTypeDetrac: Label 'You must choose the document type of Customer 1 or 6 for detraction document.';
-        ErrorDocOpeTypeDetrac: Label 'You must choose Document Operation Type that begin with 10 for detraction document';
+        ErrorElectronicMsg: Label 'Can´t select an electronic series for a non-electronic document.', comment = 'ESM="No se puede seleccionar una serie electrónica para un documento no electrónico."';
+        ErrorUbigeo: Label 'Ubigeo %1 is not valid.', comment = 'ESM="Ubigeo %1 no es valido."';
+        ErrorDocument: Label 'Legal document %1 is not valid.', comment = 'ESM="El documento legal %1 no es valido."';
+        ErrorMessage: Label '%1 %2 is not valid.', comment = 'ESM="%1 %2 no es valido."';
+        ErrorYouMustValidOne: Label 'You must choose a valid "%1"', comment = 'ESM="Debes elegir un %1 valido."';
+        ErrorYouMustValidTwo: Label 'You must choose a valid "%1" or "%2"', comment = 'ESM="Debe elegir un %1 o %2 válido."';
+        ErrorEnterInLine: Label 'Enter %1 in line %2.', comment = 'ESM="Ingrese %1 en la línea %2."';
+        ErrorCustDocTypeDetrac: Label 'You must choose the document type of Customer 1 or 6 for detraction document.', comment = 'ESM="Debe elegir el tipo de documento de Cliente 1 o 6 para el documento de detracción."';
+        ErrorDocOpeTypeDetrac: Label 'You must choose Document Operation Type that begin with 10 for detraction document', comment = 'ESM="Debe elegir el tipo de operación de documento que comienza con 10 para el documento de detracción."';
         ErrorDsctLine: Label 'There is no discount line, when %1 %2 is configured there must be at least one discount line.', Comment = 'ESM="No hay línea de descuento, cuando se configura %1 %2, debe haber al menos una línea con descuento."';
         ErrorMotiveDsctLine: Label 'You must select the discount reason code on the line.', Comment = 'ESM="Debe de seleccionar motivo de descuento para la linea."';
-        ErrorDetracDoc: Label 'For document without detraction the document operation type should not start with %1';
+        ErrorDetracDoc: Label 'For document without detraction the document operation type should not start with %1', comment = 'ESM="Para documentos sin detracción, el tipo de operación de documento no debe comenzar con %1."';
 }

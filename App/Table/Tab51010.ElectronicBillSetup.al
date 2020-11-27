@@ -11,11 +11,11 @@ table 51010 "EB Electronic Bill Setup"
         }
         field(51001; "EB URI Service"; Text[100])
         {
-            Caption = 'URI Billing Service';
+            Caption = 'URI Billing Service', Comment = 'ESM="URL Servicio"';
         }
         field(51002; "EB Detraction Code"; Code[20])
         {
-            Caption = 'Detraction Code';
+            Caption = 'Detraction Code', Comment = 'ESM="Cód. Detracción"';
             TableRelation = "Legal Document"."Legal No." where("Option Type" = const("Catalogue SUNAT"), "Type Code" = const('14'));
             ValidateTableRelation = false;
         }
@@ -27,13 +27,13 @@ table 51010 "EB Electronic Bill Setup"
         }
         field(51004; "EB Detrac. National Bank Code"; Code[20])
         {
-            Caption = 'Detrac. National Bank Code';
+            Caption = 'Detrac. National Bank Code', Comment = 'ESM="Cód. Detracción Banco Nación"';
             TableRelation = "Legal Document"."Legal No." where("Option Type" = const("Catalogue SUNAT"), "Type Code" = const('15'));
             ValidateTableRelation = false;
         }
         field(51005; "EB National Bank Account No."; Code[25])
         {
-            Caption = 'National Bank Account No.';
+            Caption = 'National Bank Account No.', Comment = 'ESM="Número cuenta Banco Nación"';
         }
         field(51006; "EB TAX Code"; Code[20])
         {
@@ -43,28 +43,28 @@ table 51010 "EB Electronic Bill Setup"
         }
         field(51007; "EB ISC Code"; Code[20])
         {
-            Caption = 'ISC Code';
+            Caption = 'ISC Code', Comment = 'ESM="Cód. ISC"';
             TableRelation = "Legal Document"."Legal No." where("Option Type" = const("Catalogue SUNAT"), "Type Code" = const('05'));
             ValidateTableRelation = false;
         }
         field(51008; "EB Charge/Dsct Detailed Code"; Code[22])
         {
-            Caption = 'Charge/Dsct Detailed Code';
+            Caption = 'Charge/Dsct Detailed Code', Comment = 'ESM="Cód. Cargo/Descuento - Detalle"';
             TableRelation = "Legal Document"."Legal No." where("Option Type" = const("Catalogue SUNAT"), "Type Code" = const('53'), "Applied Level" = const(Line));
             ValidateTableRelation = false;
         }
         field(51009; "EB Electronic Sender"; Boolean)
         {
-            Caption = 'Electronic Sender';
+            Caption = 'Electronic Sender', Comment = 'ESM="Emisor Electrónico"';
         }
         field(51010; "EB Company Name"; Text[30])
         {
-            Caption = 'Company Name';
+            Caption = 'Company Name', Comment = 'ESM="Nombre Compañia"';
             TableRelation = Company.Name;
         }
         field(51011; "EB Unit of Measure"; Code[25])
         {
-            Caption = 'Unit of Measure';
+            Caption = 'Unit of Measure', Comment = 'ESM="Unidad Medida"';
             TableRelation = "Unit of Measure";
         }
         field(51012; "EB Get QR"; Text[100])
@@ -73,58 +73,58 @@ table 51010 "EB Electronic Bill Setup"
         }
         field(51013; "EB Charge G/L Account"; Code[20])
         {
-            Caption = 'Charge G/L Account';
+            Caption = 'Charge G/L Account', Comment = 'ESM="Cuenta Cargos"';
             TableRelation = "G/L Account"."No." WHERE("Account Type" = CONST(Posting));
         }
         field(51014; "EB Discount G/L Account"; Code[20])
         {
-            Caption = 'Discount G/L Account';
+            Caption = 'Discount G/L Account', Comment = 'ESM="Cuenta Descuentos"';
             TableRelation = "G/L Account"."No." WHERE("Account Type" = CONST(Posting));
         }
         field(51015; "EB Invoice"; Text[200])
         {
-            Caption = 'Invoice';
+            Caption = 'Invoice', Comment = 'ESM="Factura"';
         }
         field(51016; "EB Ticket"; Text[200])
         {
-            Caption = 'Ticket';
+            Caption = 'Ticket', Comment = 'ESM="Boleta"';
         }
         field(51017; "EB Credit Note"; Text[200])
         {
-            Caption = 'Credit Note';
+            Caption = 'Credit Note', Comment = 'ESM="Nota de Crédito"';
         }
         field(51018; "EB Debit Note"; Text[200])
         {
-            Caption = 'Debit Note';
+            Caption = 'Debit Note', Comment = 'ESM="Nota de Débito"';
         }
         field(51019; "EB Retention"; Text[200])
         {
-            Caption = 'Retention';
+            Caption = 'Retention', Comment = 'ESM="Retención"';
         }
         field(51020; "EB Voided Document"; Text[200])
         {
-            Caption = 'Voided Document';
+            Caption = 'Voided Document', Comment = 'ESM="Comunicación Baja"';
         }
         field(51021; "EB Summary Documents"; Text[200])
         {
-            Caption = 'Summary Documents';
+            Caption = 'Summary Documents', Comment = 'ESM="Resumen Diario"';
         }
         field(51022; "EB Get PDF"; Text[200])
         {
-            Caption = 'Get PDF';
+            Caption = 'Get PDF', Comment = 'ESM="Obtener PDF"';
         }
         field(51023; "EB Get Ticket Status"; Text[200])
         {
-            Caption = 'Get Ticket Status';
+            Caption = 'Get Ticket Status', Comment = 'ESM="Obtener Estado"';
         }
         field(51024; "EB Validate Summary Document"; Text[200])
         {
-            Caption = 'Validate Summary Document';
+            Caption = 'Validate Summary Document', Comment = 'ESM="Validar Resumen Diario"';
         }
         field(51025; "EB Elec. Bill Resolution No."; Text[100])
         {
             DataClassification = ToBeClassified;
-            Caption = 'Elec. Bill Resolution No.';
+            Caption = 'Elec. Bill Resolution No.', Comment = 'ESM="No. Resolución Fact. Electrónica"';
         }
     }
 

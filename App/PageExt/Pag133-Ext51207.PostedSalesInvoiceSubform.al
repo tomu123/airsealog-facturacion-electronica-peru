@@ -9,6 +9,10 @@ pageextension 51207 "EB Posted Sales Inv. Subform" extends "Posted Sales Invoice
             {
                 ApplicationArea = All;
             }
+            field("Amount Advanced"; "Amount Advanced")
+            {
+                ApplicationArea = All;
+            }
         }
     }
 

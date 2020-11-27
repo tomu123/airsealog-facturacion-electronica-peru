@@ -68,12 +68,12 @@ pageextension 51110 "EB Sales Invoice" extends "Sales Invoice"
                     ApplicationArea = All;
                     Editable = "EB Electronic Bill";
                 }
-                // field("EB TAX Ref. Document Type"; "EB TAX Ref. Document Type")
-                // {
-                //     ApplicationArea = All;
-                //     Caption = 'TAX Ref. Document Type';
-                //     Editable = "EB Electronic Bill";
-                // }
+                field("EB TAX Ref. Document Type"; "EB TAX Ref. Document Type")
+                {
+                    ApplicationArea = All;
+                    Caption = 'TAX Ref. Document Type';
+                    Editable = "EB Electronic Bill";
+                }
                 field("EB NC/ND Description Type"; "EB NC/ND Description Type")
                 {
                     ApplicationArea = All;
@@ -91,6 +91,13 @@ pageextension 51110 "EB Sales Invoice" extends "Sales Invoice"
                     ApplicationArea = All;
                     Caption = 'Anticipo Inicial', Comment = 'ESM="Anticipo Inicial"';
                     Editable = "EB Electronic Bill";
+                    trigger OnValidate()
+                    var
+                        myInt: Integer;
+                    begin
+                        if "Initial Advanced" then
+                            "Final Advanced" := false;
+                    end;
                 }
                 field("Total Applied. Advance"; "Total Applied. Advance")
                 {
@@ -103,6 +110,13 @@ pageextension 51110 "EB Sales Invoice" extends "Sales Invoice"
                     ApplicationArea = All;
                     Caption = 'Anticipo Final', Comment = 'ESM="Anticipo Final"';
                     Editable = "EB Electronic Bill";
+                    trigger OnValidate()
+                    var
+                        myInt: Integer;
+                    begin
+                        if "Final Advanced" then
+                            "Initial Advanced" := false;
+                    end;
                 }
             }
         }

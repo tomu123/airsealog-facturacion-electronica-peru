@@ -30,8 +30,10 @@ tableextension 51193 "EB Sales Lines" extends "Sales Line"
                 DimMgt: Codeunit DimensionManagement;
                 DimSetEntry: Record "Dimension Set Entry";
                 DimSetEntryTemp: Record "Dimension Set Entry" temporary;
+                DimValue: Record "Dimension Value";
             begin
                 Clear(DimSetEntryTemp);
+                clear(DimValue);
                 //Debes de definir una dimensión en la tabla localizado "Advance Dimension Code"
                 //ANTICIPO Nombre dimension
                 //Dimensión set id diferente de 0
@@ -42,6 +44,16 @@ tableextension 51193 "EB Sales Lines" extends "Sales Line"
                         DimSetEntry.SetRange("Dimension Code", 'ANTICIPO');
                         if DimSetEntry.FindFirst() then
                             DimSetEntry.Delete();
+                    end;
+                    DimValue.Reset();
+                    DimValue.SetRange("Dimension Code", 'ANTICIPO');
+                    DimValue.SetRange(Code, "EB No. Invoice Advanced");
+                    if not DimValue.FindSet() then begin
+                        DimValue.Init();
+                        DimValue.Validate("Dimension Code", 'ANTICIPO');
+                        DimValue.Validate(code, "EB No. Invoice Advanced");
+                        DimValue.Name := 'Factura ' + "EB No. Invoice Advanced";
+                        DimValue.Insert();
                     end;
 
                     DimSetEntry.Reset();

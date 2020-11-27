@@ -4,7 +4,7 @@
     "publisher": "Union Label Net",
     "version": "1.0.0.0",
     "brief": "Powered for Union Label Net",
-    "description": "Module for sending electronic documents to SUNAT",
+    "description": "Development of extension in Business Central for customization of the Airsealog Company",
     "privacyStatement": "",
     "EULA": "",
     "help": "",
@@ -26,6 +26,12 @@
             "id": "c9d0daa8-6866-41ce-ba8e-c1ef86fa587f",
             "publisher": "Union-Label-Net",
             "name": "Peruvian-Localization-ULN",
+            "version": "1.0.0.0"
+        },
+        {
+            "id": "dfc88193-d50a-449f-84ea-d0b0b3e724d4",
+            "publisher": "Union Label Net",
+            "name": "Airsealog-Customization-Uln-pe",
             "version": "1.0.0.0"
         }
     ],

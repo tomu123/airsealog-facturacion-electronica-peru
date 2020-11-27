@@ -60,6 +60,13 @@ tableextension 51070 "EB Sales Invoice Header" extends "Sales Invoice Header"
         {
             DataClassification = ToBeClassified;
         }
+        field(51123; "Total Applied. Advance"; Decimal)
+        {
+
+            FieldClass = FlowField;
+            CalcFormula = Sum("Sales Invoice Line"."Amount Advanced" where("Document No." = field("No.")));
+
+        }
     }
 
     var

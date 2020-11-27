@@ -10,12 +10,12 @@
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 2412542776 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>URI Billing Service</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="URL Servicio"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB URI Service - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 1982445749 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Detraction Code</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Cód. Detracción"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Detraction Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 1048245692 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -25,12 +25,12 @@
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 407892955 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Detrac. National Bank Code</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Cód. Detracción Banco Nación"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Detrac. National Bank Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 172282267 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>National Bank Account No.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Número cuenta Banco Nación"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB National Bank Account No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 790479289 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -40,27 +40,27 @@
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 810728397 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>ISC Code</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Cód. ISC"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB ISC Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 1989790097 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Charge/Dsct Detailed Code</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Cód. Cargo/Descuento - Detalle"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Charge/Dsct Detailed Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 342796114 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Electronic Sender</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Emisor Electrónico"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Electronic Sender - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 758529129 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Name</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Nombre Compañia"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Company Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 3060806324 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unit of Measure</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Unidad Medida"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Unit of Measure - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 2610422334 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -70,67 +70,67 @@
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 2102912308 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Charge G/L Account</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Cuenta Cargos"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Charge G/L Account - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 1241612689 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount G/L Account</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Cuenta Descuentos"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Discount G/L Account - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 1180808138 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Invoice</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Factura"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Invoice - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 3879528565 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ticket</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Boleta"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Ticket - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 4078386486 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Credit Note</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Nota de Crédito"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Credit Note - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 4117105147 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Debit Note</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Nota de Débito"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Debit Note - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 2919197869 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Retention</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Retención"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Retention - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 3741134415 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Voided Document</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Comunicación Baja"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Voided Document - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 2906268457 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Summary Documents</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Resumen Diario"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Summary Documents - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 3293645885 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Get PDF</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Obtener PDF"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Get PDF - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 1331887299 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Get Ticket Status</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Obtener Estado"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Get Ticket Status - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 2457782590 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Validate Summary Document</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Validar Resumen Diario"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Validate Summary Document - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3582158859 - Field 1097735624 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Elec. Bill Resolution No.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="No. Resolución Fact. Electrónica"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Elec. Bill Resolution No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 465608774 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -240,7 +240,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - Method 2127690939 - NamedType 1968152428" size-unit="char" translate="yes" xml:space="preserve">
           <source>Download File</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Descargar archivo"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - Method ReadResponse - NamedType DialogTitle</note>
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - Method 2626158137 - NamedType 1720521689" size-unit="char" translate="yes" xml:space="preserve">
@@ -285,52 +285,52 @@
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - Method 323610088 - NamedType 1094242267" size-unit="char" translate="yes" xml:space="preserve">
           <source>The series %1 is not electronic.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="La serie %1 no es electónica"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - Method CheckNoSeries - NamedType ErrorNoSerie</note>
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - NamedType 3198615901" size-unit="char" translate="yes" xml:space="preserve">
           <source>Can´t select an electronic series for a non-electronic document.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="No se puede seleccionar una serie electrónica para un documento no electrónico."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - NamedType ErrorElectronicMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - NamedType 1584988605" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ubigeo %1 is not valid.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Ubigeo %1 no es valido."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - NamedType ErrorUbigeo</note>
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - NamedType 2761125417" size-unit="char" translate="yes" xml:space="preserve">
           <source>Legal document %1 is not valid.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="El documento legal %1 no es valido."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - NamedType ErrorDocument</note>
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - NamedType 2763291245" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 %2 is not valid.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="%1 %2 no es valido."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - NamedType ErrorMessage</note>
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - NamedType 2728919586" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must choose a valid "%1"</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Debes elegir un %1 valido."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - NamedType ErrorYouMustValidOne</note>
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - NamedType 2721466834" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must choose a valid "%1" or "%2"</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Debe elegir un %1 o %2 válido."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - NamedType ErrorYouMustValidTwo</note>
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - NamedType 2454557211" size-unit="char" translate="yes" xml:space="preserve">
           <source>Enter %1 in line %2.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Ingrese %1 en la línea %2."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - NamedType ErrorEnterInLine</note>
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - NamedType 2078675176" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must choose the document type of Customer 1 or 6 for detraction document.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Debe elegir el tipo de documento de Cliente 1 o 6 para el documento de detracción."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - NamedType ErrorCustDocTypeDetrac</note>
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - NamedType 3019090857" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must choose Document Operation Type that begin with 10 for detraction document</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Debe elegir el tipo de operación de documento que comienza con 10 para el documento de detracción."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - NamedType ErrorDocOpeTypeDetrac</note>
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - NamedType 3016631786" size-unit="char" translate="yes" xml:space="preserve">
@@ -345,7 +345,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2502753409 - NamedType 1872359879" size-unit="char" translate="yes" xml:space="preserve">
           <source>For document without detraction the document operation type should not start with %1</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Para documentos sin detracción, el tipo de operación de documento no debe comenzar con %1."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - NamedType ErrorDetracDoc</note>
         </trans-unit>
         <trans-unit id="Page 575776191 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -473,6 +473,11 @@
           <note from="Developer" annotates="general" priority="2">ESM="Facturación Electrónica"</note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension EB Sales Invoice - Control EBInformation - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PageExtension 3406631698 - Control 656671046 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 4034894651">
+          <source>TAX Ref. Document Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension EB Sales Invoice - Control EB TAX Ref. Document Type - Property Caption</note>
+        </trans-unit>
         <trans-unit id="PageExtension 3406631698 - Control 1462364315 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 4034894651">
           <source>ND Description Type</source>
           <note from="Developer" annotates="general" priority="2">ESM="Tipo descripción ND"</note>
@@ -587,6 +592,11 @@
           <source>Invoice Payment Advanced</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension EB Sales Invoice Header - Field Invoice Payment Advanced - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3898721307 - Field 1313198685 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 809936682">
+          <source>Total Applied. Advance</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension EB Sales Invoice Header - Field Total Applied. Advance - Property Caption</note>
         </trans-unit>
         <trans-unit id="TableExtension 3897555988 - Field 3676081813 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 2079186865">
           <source>Motive discount code</source>
@@ -750,12 +760,12 @@
         </trans-unit>
         <trans-unit id="TableExtension 2898117404 - Field 1824631676 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1192395785">
           <source>Initial Advanced</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Anticipo Inicial"</note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension EB Sales Header - Field Initial Advanced - Property Caption</note>
         </trans-unit>
         <trans-unit id="TableExtension 2898117404 - Field 1975004438 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1192395785">
           <source>Final Advanced</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">ESM="Anticipo Final"</note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension EB Sales Header - Field Final Advanced - Property Caption</note>
         </trans-unit>
         <trans-unit id="TableExtension 2898117404 - Field 2442366623 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1192395785">
