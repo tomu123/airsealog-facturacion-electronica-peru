@@ -283,6 +283,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - Method ConvertAdjustVATRegistrationNo - NamedType PermisionCharacters</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2502753409 - Method 253428733 - NamedType 3366378640" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The detraction cannot exceed the Invoice</source>
+          <note from="Developer" annotates="general" priority="2">ESM="La detracción no debe exceder la factura"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - Method CheckDetractionAmount - NamedType ErrorOverflowAmt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2502753409 - Method 253428733 - NamedType 3145930404" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Detraction amount of the entered document is %1. The correct amount is %2.</source>
+          <note from="Developer" annotates="general" priority="2">ESM="El importe de detracción del documento ingresado es %1. El importe correcto es %2."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - Method CheckDetractionAmount - NamedType DetractionAmountErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2502753409 - Method 323610088 - NamedType 1094242267" size-unit="char" translate="yes" xml:space="preserve">
           <source>The series %1 is not electronic.</source>
           <note from="Developer" annotates="general" priority="2">ESM="La serie %1 no es electónica"</note>

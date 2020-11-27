@@ -2246,6 +2246,37 @@ codeunit 51015 "EB Billing Management"
         EBSetup.TestField("EB National Bank Account No.");
         SalesHeader.TestField("Payment Method Code Detrac");
         SalesHeader.TestField("Service Type Detrac");
+        CheckDetractionAmount(SalesHeader);
+    end;
+
+    local procedure CheckDetractionAmount(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        ErrorOverflowAmt: Label 'The detraction cannot exceed the Invoice', Comment = 'ESM="La detracción no debe exceder la factura"';
+        DetractionAmountErr: Label 'The Detraction amount of the entered document is %1. The correct amount is %2.', comment = 'ESM="El importe de detracción del documento ingresado es %1. El importe correcto es %2."';
+        SalesAmtDetraction: Decimal;
+        SalesAmtDetractionLCY: Decimal;
+    begin
+        Clear(SalesAmtDetraction);
+        Clear(SalesAmtDetractionLCY);
+        GLSetup.Get();
+        SalesLine.Reset();
+        SalesLine.SetCurrentKey("Document Type", "Document No.", "Location Code");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Location Code");
+        SalesLine.CalcSums("Amount Including VAT");
+        if Round((SalesHeader."Sales % Detraction" * SalesLine."Amount Including VAT") / 100, GLSetup."Amount Rounding Precision") > SalesLine."Amount Including VAT" then
+            Error(ErrorOverflowAmt);
+
+        SalesAmtDetraction := Round((SalesHeader."Sales % Detraction" * SalesLine."Amount Including VAT") / 100, GLSetup."Amount Rounding Precision");
+        if SalesHeader."Currency Code" = '' then
+            SalesAmtDetractionLCY := SalesAmtDetraction
+        else
+            SalesAmtDetractionLCY := SalesAmtDetraction / SalesHeader."Currency Factor";
+
+        if SalesHeader."Sales Amt Detraction" <> SalesAmtDetractionLCY then
+            Error(DetractionAmountErr, Format(SalesHeader."Sales Amt Detraction"), Format(SalesAmtDetractionLCY));
     end;
 
     local procedure CheckPrePostFreeTitle(var SalesHeader: Record "Sales Header")
@@ -2401,6 +2432,7 @@ codeunit 51015 "EB Billing Management"
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
         EBSetup: Record "EB Electronic Bill Setup";
         LSetup: Record "Setup Localization";
         CompanyInfo: Record "Company InFormation";
