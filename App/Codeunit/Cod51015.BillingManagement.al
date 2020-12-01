@@ -7,6 +7,19 @@ codeunit 51015 "EB Billing Management"
     begin
 
     end;
+    //******************* Integrations with codeunit "Copy Document Mgt." BEGIN ********************
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnBeforeModifySalesHeader', '', true, true)]
+    local procedure SetBeforeModifySalesHeader(VAR ToSalesHeader: Record "Sales Header"; FromDocType: Option; FromDocNo: Code[20]; IncludeHeader: Boolean; FromDocOccurenceNo: Integer; FromDocVersionNo: Integer)
+    begin
+        ToSalesHeader.Validate("Applies-to Doc. No. Ref.", FromDocNo);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnCopySalesDocOnAfterTransferPostedInvoiceFields', '', true, true)]
+    local procedure SetCopySalesDocOnAfterTransferPostedInvoiceFields(var ToSalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header"; OldSalesHeader: Record "Sales Header")
+    begin
+        ToSalesHeader.Validate("Legal Document", OldSalesHeader."Legal Document");
+    end;
+    //******************* Integrations with codeunit "Copy Document Mgt." END  *********************    
     //******************* Integrations with codeunit sales-post BEGIN *********************
     // OnBeforePostSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var HideProgressWindow: Boolean)
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostSalesDoc', '', false, false)]
@@ -1151,7 +1164,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp(CreateXMLTag('elec2:TaxableAmount', FormatNumber(SalesCrMemoLine.Amount)));
                 AddLineXMLTemp('<elec2:eTaxCategory>');
                 //AddLineXMLTemp(CreateXMLTag('elec3:ID',CatalogoSunat."Alternative Code"));
-                CatalogoSunat.TestField("UN ECE 5305");
+                //CatalogoSunat.TestField("UN ECE 5305");
                 AddLineXMLTemp(CreateXMLTag('elec3:ID', CatalogoSunat."UN ECE 5305"));
                 AddLineXMLTemp(CreateXMLTag('elec3:Percent', FormatNumber(SalesCrMemoLine."VAT %")));
                 AddLineXMLTemp(CreateXMLTag('elec3:TaxExemptionReasonCode', VATPostingSetup."EB VAT Type Affectation"));
@@ -2275,8 +2288,8 @@ codeunit 51015 "EB Billing Management"
         else
             SalesAmtDetractionLCY := SalesAmtDetraction / SalesHeader."Currency Factor";
 
-        if SalesHeader."Sales Amt Detraction" <> SalesAmtDetractionLCY then
-            Error(DetractionAmountErr, Format(SalesHeader."Sales Amt Detraction"), Format(SalesAmtDetractionLCY));
+        if SalesHeader."Sales Amt Detraction" <> SalesAmtDetraction then
+            Error(DetractionAmountErr, Format(SalesHeader."Sales Amt Detraction"), Format(SalesAmtDetraction));
     end;
 
     local procedure CheckPrePostFreeTitle(var SalesHeader: Record "Sales Header")
