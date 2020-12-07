@@ -437,9 +437,11 @@ codeunit 51015 "EB Billing Management"
             AddLineXMLTemp(CreateXMLTag('elec3:RegistrationName', '<![CDATA[' + SalesInvHeader."Sell-to Customer Name" + ']]>'));
             AddLineXMLTemp('<elec3:eRegistrationAddress>');
             AddLineXMLTemp(CreateXMLTag('elec4:AddressLine', '<![CDATA[' + SalesInvHeader."Sell-to Address" + ']]>'));
-            AddLineXMLTemp(CreateXMLTag('elec4:CityName', UbigeoMgt.Departament(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code")));
-            AddLineXMLTemp(CreateXMLTag('elec4:CountrySubentity', UbigeoMgt.Province(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code", SalesInvHeader."Sell-to City")));
-            AddLineXMLTemp(CreateXMLTag('elec4:District', UbigeoMgt.District(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code", SalesInvHeader."Sell-to City", SalesInvHeader."Sell-to County")));
+            if SalesInvHeader."Sell-to Country/Region Code" = 'PE' then begin
+                AddLineXMLTemp(CreateXMLTag('elec4:CityName', UbigeoMgt.Departament(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code")));
+                AddLineXMLTemp(CreateXMLTag('elec4:CountrySubentity', UbigeoMgt.Province(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code", SalesInvHeader."Sell-to City")));
+                AddLineXMLTemp(CreateXMLTag('elec4:District', UbigeoMgt.District(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code", SalesInvHeader."Sell-to City", SalesInvHeader."Sell-to County")));
+            end;
             AddLineXMLTemp(CreateXMLTag('elec4:ID', SalesInvHeader."Sell-to Post Code" + SalesInvHeader."Sell-to City" + SalesInvHeader."Sell-to County"));
             AddLineXMLTemp(CreateXMLTag('elec4:eCountry', CreateXMLTag('elec5:IdentificationCode', SalesInvHeader."Sell-to Country/Region Code")));
             AddLineXMLTemp('</elec3:eRegistrationAddress>');
@@ -452,9 +454,11 @@ codeunit 51015 "EB Billing Management"
             AddLineXMLTemp('<elec3:eRegistrationAddress>');
             AddLineXMLTemp(CreateXMLTag('elec4:AddressLine', '<![CDATA[' + SalesInvHeader."Sell-to Address" + ']]>'));
             AddLineXMLTemp(CreateXMLTag('elec4:AddressTypeCode', ''));
-            AddLineXMLTemp(CreateXMLTag('elec4:CityName', UbigeoMgt.Departament(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code")));
-            AddLineXMLTemp(CreateXMLTag('elec4:CountrySubentity', UbigeoMgt.Province(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code", SalesInvHeader."Sell-to City")));
-            AddLineXMLTemp(CreateXMLTag('elec4:District', UbigeoMgt.District(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code", SalesInvHeader."Sell-to City", SalesInvHeader."Sell-to County")));
+            if SalesInvHeader."Sell-to Country/Region Code" = 'PE' then begin
+                AddLineXMLTemp(CreateXMLTag('elec4:CityName', UbigeoMgt.Departament(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code")));
+                AddLineXMLTemp(CreateXMLTag('elec4:CountrySubentity', UbigeoMgt.Province(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code", SalesInvHeader."Sell-to City")));
+                AddLineXMLTemp(CreateXMLTag('elec4:District', UbigeoMgt.District(SalesInvHeader."Sell-to Country/Region Code", SalesInvHeader."Sell-to Post Code", SalesInvHeader."Sell-to City", SalesInvHeader."Sell-to County")));
+            end;
             AddLineXMLTemp(CreateXMLTag('elec4:ID', SalesInvHeader."Sell-to Post Code" + SalesInvHeader."Sell-to City" + SalesInvHeader."Sell-to County"));
             AddLineXMLTemp(CreateXMLTag('elec4:eCountry', CreateXMLTag('elec5:IdentificationCode', SalesInvHeader."Sell-to Country/Region Code")));
             AddLineXMLTemp('</elec3:eRegistrationAddress>');
@@ -478,9 +482,11 @@ codeunit 51015 "EB Billing Management"
             AddLineXMLTemp(CreateXMLTag('elec3:RegistrationName', '<![CDATA[' + SalesCrMemoHdr."Sell-to Customer Name" + ']]>'));
             AddLineXMLTemp('<elec3:eRegistrationAddress>');
             AddLineXMLTemp(CreateXMLTag('elec4:AddressLine', '<![CDATA[' + SalesCrMemoHdr."Sell-to Address" + ']]>'));
-            AddLineXMLTemp(CreateXMLTag('elec4:CityName', UbigeoMgt.Departament(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code")));
-            AddLineXMLTemp(CreateXMLTag('elec4:CountrySubentity', UbigeoMgt.Province(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code", SalesCrMemoHdr."Sell-to City")));
-            AddLineXMLTemp(CreateXMLTag('elec4:District', UbigeoMgt.District(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code", SalesCrMemoHdr."Sell-to City", SalesCrMemoHdr."Sell-to County")));
+            if SalesCrMemoHdr."Sell-to Country/Region Code" = 'PE' then begin
+                AddLineXMLTemp(CreateXMLTag('elec4:CityName', UbigeoMgt.Departament(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code")));
+                AddLineXMLTemp(CreateXMLTag('elec4:CountrySubentity', UbigeoMgt.Province(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code", SalesCrMemoHdr."Sell-to City")));
+                AddLineXMLTemp(CreateXMLTag('elec4:District', UbigeoMgt.District(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code", SalesCrMemoHdr."Sell-to City", SalesCrMemoHdr."Sell-to County")));
+            end;
             AddLineXMLTemp(CreateXMLTag('elec4:ID', SalesCrMemoHdr."Sell-to Post Code" + SalesCrMemoHdr."Sell-to City" + SalesCrMemoHdr."Sell-to County"));
             AddLineXMLTemp(CreateXMLTag('elec4:eCountry', CreateXMLTag('elec5:IdentificationCode', SalesCrMemoHdr."Sell-to Country/Region Code")));
             AddLineXMLTemp('</elec3:eRegistrationAddress>');
@@ -493,9 +499,11 @@ codeunit 51015 "EB Billing Management"
             AddLineXMLTemp('<elec3:eRegistrationAddress>');
             AddLineXMLTemp(CreateXMLTag('elec4:AddressLine', '<![CDATA[' + SalesCrMemoHdr."Sell-to Address" + ']]>'));
             AddLineXMLTemp(CreateXMLTag('elec4:AddressTypeCode', ''));
-            AddLineXMLTemp(CreateXMLTag('elec4:CityName', UbigeoMgt.Departament(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code")));
-            AddLineXMLTemp(CreateXMLTag('elec4:CountrySubentity', UbigeoMgt.Province(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code", SalesCrMemoHdr."Sell-to City")));
-            AddLineXMLTemp(CreateXMLTag('elec4:District', UbigeoMgt.District(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code", SalesCrMemoHdr."Sell-to City", SalesCrMemoHdr."Sell-to County")));
+            if SalesCrMemoHdr."Sell-to Country/Region Code" = 'PE' then begin
+                AddLineXMLTemp(CreateXMLTag('elec4:CityName', UbigeoMgt.Departament(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code")));
+                AddLineXMLTemp(CreateXMLTag('elec4:CountrySubentity', UbigeoMgt.Province(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code", SalesCrMemoHdr."Sell-to City")));
+                AddLineXMLTemp(CreateXMLTag('elec4:District', UbigeoMgt.District(SalesCrMemoHdr."Sell-to Country/Region Code", SalesCrMemoHdr."Sell-to Post Code", SalesCrMemoHdr."Sell-to City", SalesCrMemoHdr."Sell-to County")));
+            end;
             AddLineXMLTemp(CreateXMLTag('elec4:ID', SalesCrMemoHdr."Sell-to Post Code" + SalesCrMemoHdr."Sell-to City" + SalesCrMemoHdr."Sell-to County"));
             AddLineXMLTemp(CreateXMLTag('elec4:eCountry', CreateXMLTag('elec5:IdentificationCode', SalesCrMemoHdr."Sell-to Country/Region Code")));
             AddLineXMLTemp('</elec3:eRegistrationAddress>');
