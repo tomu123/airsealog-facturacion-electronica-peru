@@ -120,6 +120,15 @@ page 51019 "EB Electronic Bill Setup Card"
                     ApplicationArea = All;
                 }
             }
+            group(Airsealog)
+            {
+                Caption = 'Airsealog', comment = 'ESM="Airsealog"';
+                field("Send electronic documents to"; "Send electronic documents to")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Optional email address where electronic documents are sent', comment = 'ESM="Correo electronico opcional a donde se envian los documentos electrónicos"';
+                }
+            }
         }
     }
 

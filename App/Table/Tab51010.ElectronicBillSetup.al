@@ -126,6 +126,12 @@ table 51010 "EB Electronic Bill Setup"
             DataClassification = ToBeClassified;
             Caption = 'Elec. Bill Resolution No.', Comment = 'ESM="No. Resolución Fact. Electrónica"';
         }
+        field(58000; "Send electronic documents to"; Text[80])
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'Send electronic documents to', comment = 'ESM="Send electronic documents to"';
+            ExtendedDatatype = EMail;
+        }
     }
 
     keys

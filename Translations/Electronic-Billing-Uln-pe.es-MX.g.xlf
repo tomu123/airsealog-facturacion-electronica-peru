@@ -156,6 +156,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Elec. Bill Resolution No. - Property Caption</note>
           <target>No. Resolución Fact. Electrónica</target>
         </trans-unit>
+        <trans-unit id="Table 3582158859 - Field 2867845939 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Send electronic documents to</source>
+          <note from="Developer" annotates="general" priority="2">ESM="Send electronic documents to"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field Send electronic documents to - Property Caption</note>
+          <target>Send electronic documents to</target>
+        </trans-unit>
         <trans-unit id="Table 465608774 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Electronic Bill Entry</source>
           <note from="Developer" annotates="general" priority="2">ESM="Mov. Facturación Electrónica"</note>
@@ -445,6 +451,18 @@
           <source>Others</source>
           <note from="Developer" annotates="general" priority="2"/>
           <note from="Xliff Generator" annotates="general" priority="3">Page EB Electronic Bill Setup Card - Control Others - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 575776191 - Control 2551637867 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Airsealog</source>
+          <note from="Developer" annotates="general" priority="2">ESM="Airsealog"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page EB Electronic Bill Setup Card - Control Airsealog - Property Caption</note>
+          <target>Airsealog</target>
+        </trans-unit>
+        <trans-unit id="Page 575776191 - Control 2867845939 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Optional email address where electronic documents are sent</source>
+          <note from="Developer" annotates="general" priority="2">ESM="Correo electronico opcional a donde se envian los documentos electrónicos"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page EB Electronic Bill Setup Card - Control Send electronic documents to - Property ToolTip</note>
+          <target>Correo electronico opcional a donde se envian los documentos electrónicos</target>
         </trans-unit>
         <trans-unit id="Page 575776191 - Action 1486440861 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Entries</source>

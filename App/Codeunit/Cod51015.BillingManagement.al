@@ -424,7 +424,10 @@ codeunit 51015 "EB Billing Management"
             AddLineXMLTemp(CreateXMLTag('elec1:CustomerAccountID', NormalizeRUC(SalesInvHeader."VAT Registration No.")));
             AddLineXMLTemp(CreateXMLTag('elec1:CustomerName', '<![CDATA[' + SalesInvHeader."Sell-to Customer Name" + ']]>'));
             AddLineXMLTemp(CreateXMLTag('elec1:CustomerAddress', '<![CDATA[' + SalesInvHeader."Sell-to Address" + ']]>'));
-            AddLineXMLTemp(CreateXMLTag('elec1:CustomerEmail', SalesInvHeader."Sell-to E-Mail"));
+            if EBSetup."Send electronic documents to" <> '' then
+                AddLineXMLTemp(CreateXMLTag('elec1:CustomerEmail', StrSubstNo('%1;%2', EBSetup."Send electronic documents to", SalesInvHeader."Sell-to E-Mail")))
+            else
+                AddLineXMLTemp(CreateXMLTag('elec1:CustomerEmail', SalesInvHeader."Sell-to E-Mail"));
             AddLineXMLTemp('<elec1:eParty>');
             if DebitNote then begin
                 if SalesInvHeader."VAT Registration Type" = '0' then
@@ -472,7 +475,10 @@ codeunit 51015 "EB Billing Management"
             AddLineXMLTemp(CreateXMLTag('elec1:CustomerAccountID', NormalizeRUC(SalesCrMemoHdr."VAT Registration No.")));
             AddLineXMLTemp(CreateXMLTag('elec1:CustomerName', '<![CDATA[' + SalesCrMemoHdr."Sell-to Customer Name" + ']]>'));
             AddLineXMLTemp(CreateXMLTag('elec1:CustomerAddress', '<![CDATA[' + SalesCrMemoHdr."Sell-to Address" + ']]>'));
-            AddLineXMLTemp(CreateXMLTag('elec1:CustomerEmail', SalesCrMemoHdr."Sell-to E-Mail"));
+            if EBSetup."Send electronic documents to" <> '' then
+                AddLineXMLTemp(CreateXMLTag('elec1:CustomerEmail', StrSubstNo('%1;%2', EBSetup."Send electronic documents to", SalesCrMemoHdr."Sell-to E-Mail")))
+            else
+                AddLineXMLTemp(CreateXMLTag('elec1:CustomerEmail', SalesCrMemoHdr."Sell-to E-Mail"));
             AddLineXMLTemp('<elec1:eParty>');
             if SalesCrMemoHdr."VAT Registration Type" = '0' then
                 AddLineXMLTemp(CreateXMLTag('elec2:ePartyIdentification', CreateXMLTag('elec3:ID', ConvertAdjustVATRegistrationNo(SalesCrMemoHdr."VAT Registration No."))))
