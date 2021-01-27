@@ -90,7 +90,15 @@ codeunit 51015 "EB Billing Management"
         end;
     end;
     //******************* Integrations with codeunit sales-post END *********************
-
+    //******************* Integrations with codeunit "Correct Posted Document" BEGIN ********************
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LD Correct Posted Documents", 'OnAfterCreateCreditMemoFromPostedSalesinvoice', '', true, true)]
+    local procedure SetAfterCreateCreditMemoFromPostedSalesinvoice(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+        if SalesHeader."Legal Status" in [SalesHeader."Legal Status"::Anulled, SalesHeader."Legal Status"::OutFlow] then begin
+            SalesHeader."EB Electronic Bill" := false;
+            SalesHeader.Modify();
+        end;
+    end;
     //************************** POSTED *******************************
 
     procedure PostElectronicDocument(pDocumentNo: Code[20]; pLegalDocument: Code[10]): Text
@@ -727,10 +735,10 @@ codeunit 51015 "EB Billing Management"
             if SalesCrMemoLine.FindFirst() then begin
                 repeat
                     if SalesCrMemoHdr."Prices Including VAT" then
-                        DiscountAmount += DiscountAmount + Round(SalesCrMemoLine."Line Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
+                        DiscountAmount := DiscountAmount + Round(SalesCrMemoLine."Line Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
                     else
-                        DiscountAmount += DiscountAmount + SalesCrMemoLine."Line Discount Amount";
-                    TaxBase += TaxBase + SalesCrMemoLine."Line Amount";
+                        DiscountAmount := DiscountAmount + SalesCrMemoLine."Line Discount Amount";
+                    TaxBase := TaxBase + SalesCrMemoLine."Line Amount";
                 until SalesCrMemoLine.NEXT = 0;
             end;
         end else begin
@@ -742,10 +750,10 @@ codeunit 51015 "EB Billing Management"
             if SalesInvLine.FindSet then begin
                 repeat
                     if SalesInvHeader."Prices Including VAT" then
-                        DiscountAmount += DiscountAmount + Round(SalesInvLine."Line Discount Amount" / (1 + SalesInvLine."VAT %" / 100), 0.01)
+                        DiscountAmount := DiscountAmount + Round(SalesInvLine."Line Discount Amount" / (1 + SalesInvLine."VAT %" / 100), 0.01)
                     else
-                        DiscountAmount += DiscountAmount + SalesInvLine."Line Discount Amount";
-                    TaxBase += TaxBase + SalesInvLine."Line Amount";
+                        DiscountAmount := DiscountAmount + SalesInvLine."Line Discount Amount";
+                    TaxBase := TaxBase + SalesInvLine."Line Amount";
                 until SalesInvLine.NEXT = 0;
             end;
         end;
@@ -766,9 +774,9 @@ codeunit 51015 "EB Billing Management"
                 repeat
                     if GetTaxTypeCode(SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group") IN ['1000', '1016', '9995', '9997', '9998'] then begin
                         if SalesCrMemoHdr."Prices Including VAT" then
-                            GrossSaleValue += GrossSaleValue + Round((SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount") / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
+                            GrossSaleValue := GrossSaleValue + Round((SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount") / (1 + SalesCrMemoLine."VAT %" / 100), 0.01)
                         else
-                            GrossSaleValue += GrossSaleValue + (SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount");
+                            GrossSaleValue := GrossSaleValue + (SalesCrMemoLine.Amount + SalesCrMemoLine."Line Discount Amount");
                         //GrossSaleValue := GrossSaleValue + SalesCrMemoLine."VAT Base Amount";
                     end;
                 until SalesCrMemoLine.NEXT = 0;
@@ -782,9 +790,9 @@ codeunit 51015 "EB Billing Management"
                 repeat
                     if GetTaxTypeCode(SalesInvLine."VAT Bus. Posting Group", SalesInvLine."VAT Prod. Posting Group") IN ['1000', '1016', '9995', '9997', '9998'] then begin
                         if SalesInvHeader."Prices Including VAT" then
-                            GrossSaleValue += Round((SalesInvLine.Amount + SalesInvLine."Line Discount Amount") / (1 + SalesInvLine."VAT %" / 100), 0.01)
+                            GrossSaleValue := Round((SalesInvLine.Amount + SalesInvLine."Line Discount Amount") / (1 + SalesInvLine."VAT %" / 100), 0.01)
                         else
-                            GrossSaleValue += (SalesInvLine.Amount + SalesInvLine."Line Discount Amount");
+                            GrossSaleValue := (SalesInvLine.Amount + SalesInvLine."Line Discount Amount");
                         //GrossSaleValue := GrossSaleValue + SalesInvLine."VAT Base Amount";
                     end;
                 until SalesInvLine.NEXT = 0;
@@ -1375,7 +1383,7 @@ codeunit 51015 "EB Billing Management"
         if BankAccount.FindFirst() then begin
             AddLineXMLTemp('<elec1:lPersonalizacionBanco>');
             repeat
-                LineNo += LineNo + 1;
+                LineNo := LineNo + 1;
                 AddLineXMLTemp('<elec2:PersonalizacionBanco>');
                 AddLineXMLTemp(CreateXMLTag('elec2:ID', ForMAT(LineNo)));
                 AddLineXMLTemp(CreateXMLTag('elec2:Name', BankAccount.Name));
@@ -1423,7 +1431,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Job'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Shortcut Dimension 3 Code"));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesCrMemoHdr."Shortcut Dimension 3 Code" + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1431,7 +1439,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'BL'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."BL No."));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesCrMemoHdr."BL No." + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1439,7 +1447,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Shipper'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Shipper Name"));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesCrMemoHdr."Shipper Name" + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1447,7 +1455,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Consignee'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Consignee Name"));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesCrMemoHdr."Consignee Name" + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1455,7 +1463,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Routing'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Routing No."));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesCrMemoHdr."Routing No." + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1463,7 +1471,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Origen'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr.Origin));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesCrMemoHdr.Origin + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1471,7 +1479,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'BarcoVuelo'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr.Placa));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesCrMemoHdr.Placa + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1479,7 +1487,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Carrier'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Carrier Name"));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesCrMemoHdr."Carrier Name" + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1487,7 +1495,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Destino'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr.Destination));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesCrMemoHdr.Destination + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1511,7 +1519,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'CorrelativoInterno'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."Cargowise Invoice No."));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesCrMemoHdr."Cargowise Invoice No." + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1519,14 +1527,14 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'NroGuia'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesCrMemoHdr."No. Sales Shipment"));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesCrMemoHdr."No. Sales Shipment" + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
             if SalesCrMemoHdr."Purchase order No." <> '' then begin
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'OrdenCompra'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', Format(SalesCrMemoHdr."Purchase order No.")));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + Format(SalesCrMemoHdr."Purchase order No." + ']]>')));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
         end else begin
@@ -1534,7 +1542,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Job'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Shortcut Dimension 3 Code"));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesInvHeader."Shortcut Dimension 3 Code" + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1542,7 +1550,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'BL'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."BL No."));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesInvHeader."BL No." + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1550,7 +1558,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Shipper'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Shipper Name"));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesInvHeader."Shipper Name" + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1558,7 +1566,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Consignee'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Consignee Name"));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesInvHeader."Consignee Name" + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1566,7 +1574,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Routing'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Routing No."));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesInvHeader."Routing No." + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1574,7 +1582,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Origen'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader.Origin));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesInvHeader.Origin + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1582,7 +1590,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'BarcoVuelo'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader.Placa));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesInvHeader.Placa + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1590,7 +1598,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Carrier'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Carrier Name"));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesInvHeader."Carrier Name" + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1598,7 +1606,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'Destino'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader.Destination));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesInvHeader.Destination + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1622,7 +1630,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'CorrelativoInterno'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."Cargowise Invoice No."));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesInvHeader."Cargowise Invoice No." + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1630,7 +1638,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'NroGuia'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', SalesInvHeader."No. Sales Shipment"));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + SalesInvHeader."No. Sales Shipment" + ']]>'));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
 
@@ -1638,7 +1646,7 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp('<elec2:PersonalizacionEtiqueta>');
                 AddLineXMLTemp(CreateXMLTag('elec2:Section', 'Header'));
                 AddLineXMLTemp(CreateXMLTag('elec2:Title', 'OrdenCompra'));
-                AddLineXMLTemp(CreateXMLTag('elec2:Value', Format(SalesInvHeader."Purchase order No.")));
+                AddLineXMLTemp(CreateXMLTag('elec2:Value', '<![CDATA[' + Format(SalesInvHeader."Purchase order No." + ']]>')));
                 AddLineXMLTemp('</elec2:PersonalizacionEtiqueta>');
             end;
         end;

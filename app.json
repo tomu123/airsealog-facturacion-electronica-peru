@@ -2,7 +2,7 @@
     "id": "8a2e900a-522b-42f0-9e8a-220c3e3fadf9",
     "name": "Electronic-Billing-Uln-pe",
     "publisher": "Union Label Net",
-    "version": "1.0.0.0",
+    "version": "1.0.0.6",
     "brief": "Powered for Union Label Net",
     "description": "Development of extension in Business Central for customization of the Airsealog Company",
     "privacyStatement": "",
@@ -26,13 +26,13 @@
             "id": "c9d0daa8-6866-41ce-ba8e-c1ef86fa587f",
             "publisher": "Union-Label-Net",
             "name": "Peruvian-Localization-ULN",
-            "version": "1.0.0.0"
+            "version": "1.0.0.1"
         },
         {
             "id": "dfc88193-d50a-449f-84ea-d0b0b3e724d4",
             "publisher": "Union Label Net",
             "name": "Airsealog-Customization-Uln-pe",
-            "version": "1.0.0.0"
+            "version": "1.0.0.1"
         }
     ],
     "screenshots": [],

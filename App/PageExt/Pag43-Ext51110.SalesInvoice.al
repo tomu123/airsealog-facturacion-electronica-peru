@@ -129,6 +129,7 @@ pageextension 51110 "EB Sales Invoice" extends "Sales Invoice"
             action("Apply Advance")
             {
                 Promoted = true;
+                ApplicationArea = All;
                 PromotedIsBig = true;
                 Image = ApplyEntries;
                 PromotedCategory = Category4;
