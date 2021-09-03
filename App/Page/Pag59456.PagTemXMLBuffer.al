@@ -40,26 +40,26 @@ page 59456 "EB XML Buffer View"
                 {
                     ApplicationArea = All;
                 }
-                field("Is Parent"; "Is Parent")
-                {
-                    ApplicationArea = All;
-                }
+                // field("Is Parent"; "Is Parent")
+                // {
+                //     ApplicationArea = All;
+                // }
                 field("Data Type"; "Data Type")
                 {
                     ApplicationArea = All;
                 }
-                field(Code; Code)
-                {
-                    ApplicationArea = All;
-                }
-                field("Node Name"; "Node Name")
-                {
-                    ApplicationArea = All;
-                }
-                field("Has Attributes"; "Has Attributes")
-                {
-                    ApplicationArea = All;
-                }
+                // field(Code; Code)
+                // {
+                //     ApplicationArea = All;
+                // }
+                // field("Node Name"; "Node Name")
+                // {
+                //     ApplicationArea = All;
+                // }
+                // field("Has Attributes"; "Has Attributes")
+                // {
+                //     ApplicationArea = All;
+                // }
                 field("Node Number"; "Node Number")
                 {
                     ApplicationArea = All;

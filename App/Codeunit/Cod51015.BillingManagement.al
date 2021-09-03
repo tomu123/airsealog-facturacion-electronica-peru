@@ -176,6 +176,7 @@ codeunit 51015 "EB Billing Management"
         TotalTaxAmtXMLPart();
         DetailedInvoiceTicketXMLPart();
         PersonalizationPDFXMLPart();
+        PaymentTermsSunatXMLPart();
         FooterXMLPart();
     end;
 
@@ -189,6 +190,7 @@ codeunit 51015 "EB Billing Management"
         TotalSaleValueXMLPart();
         DetailedCreditNoteXMLPart();
         PersonalizationPDFXMLPart();
+        PaymentTermsSunatXMLPart();
         FooterXMLPart();
     end;
 
@@ -1655,6 +1657,65 @@ codeunit 51015 "EB Billing Management"
         AddLineXMLTemp('</elec:lPersonalizacionPDF>');
     end;
 
+    local procedure PaymentTermsSunatXMLPart()
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        if CreditNote then begin
+            AddLineXMLTemp('<elec:PaymentTermsSunat>');
+            PaymentTerms.Reset();
+            PaymentTerms.SetRange(Code, SalesCrMemoHdr."Payment Terms Code");
+            if PaymentTerms.FindFirst() then begin
+                case PaymentTerms."Payment Method Type" of
+                    PaymentTerms."Payment Method Type"::Contado:
+                        AddLineXMLTemp(CreateXMLTag('elec1:PaymentTermsCode', '1'));
+                    PaymentTerms."Payment Method Type"::Credito:
+                        AddLineXMLTemp(CreateXMLTag('elec1:PaymentTermsCode', '2'));
+                end;
+                if PaymentTerms."Payment Method Type" = PaymentTerms."Payment Method Type"::Credito then begin
+                    SalesCrMemoHdr.CalcFields("Amount Including VAT");
+                    AddLineXMLTemp(CreateXMLTag('elec1:RemainingAmount', FormatNumber(SalesCrMemoHdr."Amount Including VAT")));
+                    AddLineXMLTemp(CreateXMLTag('elec1:CurrencyIDRemainingAmount', GetCurrencyCode(SalesCrMemoHdr."Currency Code")));
+                    AddLineXMLTemp('<elec1:lInstallmentPayment>');
+                    AddLineXMLTemp('<elec2:InstallmentPayment>');
+                    AddLineXMLTemp(CreateXMLTag('elec2:ID', Format(1)));
+                    AddLineXMLTemp(CreateXMLTag('elec2:Amount', FormatNumber(SalesCrMemoHdr."Amount Including VAT")));
+                    AddLineXMLTemp(CreateXMLTag('elec2:CurrencyIDInstallment', GetCurrencyCode(SalesCrMemoHdr."Currency Code")));
+                    AddLineXMLTemp(CreateXMLTag('elec2:PaidDate', FormatDate(SalesCrMemoHdr."Due Date")));
+                    AddLineXMLTemp('</elec2:InstallmentPayment>');
+                    AddLineXMLTemp('</elec1:lInstallmentPayment>');
+                end;
+            end;
+            AddLineXMLTemp('</elec:PaymentTermsSunat>');
+        end else begin
+            AddLineXMLTemp('<elec:PaymentTermsSunat>');
+            PaymentTerms.Reset();
+            PaymentTerms.SetRange(Code, SalesInvHeader."Payment Terms Code");
+            if PaymentTerms.FindFirst() then begin
+                case PaymentTerms."Payment Method Type" of
+                    PaymentTerms."Payment Method Type"::Contado:
+                        AddLineXMLTemp(CreateXMLTag('elec1:PaymentTermsCode', '1'));
+                    PaymentTerms."Payment Method Type"::Credito:
+                        AddLineXMLTemp(CreateXMLTag('elec1:PaymentTermsCode', '2'));
+                end;
+                if PaymentTerms."Payment Method Type" = PaymentTerms."Payment Method Type"::Credito then begin
+                    SalesInvHeader.CalcFields("Amount Including VAT");
+                    AddLineXMLTemp(CreateXMLTag('elec1:RemainingAmount', FormatNumber(SalesInvHeader."Amount Including VAT")));
+                    AddLineXMLTemp(CreateXMLTag('elec1:CurrencyIDRemainingAmount', GetCurrencyCode(SalesInvHeader."Currency Code")));
+                    AddLineXMLTemp('<elec1:lInstallmentPayment>');
+                    AddLineXMLTemp('<elec2:InstallmentPayment>');
+                    AddLineXMLTemp(CreateXMLTag('elec2:ID', Format(1)));
+                    AddLineXMLTemp(CreateXMLTag('elec2:Amount', FormatNumber(SalesInvHeader."Amount Including VAT")));
+                    AddLineXMLTemp(CreateXMLTag('elec2:CurrencyIDInstallment', GetCurrencyCode(SalesInvHeader."Currency Code")));
+                    AddLineXMLTemp(CreateXMLTag('elec2:PaidDate', FormatDate(SalesInvHeader."Due Date")));
+                    AddLineXMLTemp('</elec2:InstallmentPayment>');
+                    AddLineXMLTemp('</elec1:lInstallmentPayment>');
+                end;
+            end;
+            AddLineXMLTemp('</elec:PaymentTermsSunat>');
+        end;
+    end;
+
     local procedure GetUnitOfMeasure(UnitOfMeasureCode: Code[20]): Text
     var
         UnitOfMeasure: Record "Unit of Measure";
@@ -2464,6 +2525,13 @@ codeunit 51015 "EB Billing Management"
     local procedure SetOnBeforeFilterNoSeries(var NoSeries: Record "No. Series"; var SalesHeader: Record "Sales Header")
     begin
         NoSeries.SetRange("EB Electronic Bill", SalesHeader."EB Electronic Bill");
+    end;
+
+    local procedure MyProcedure()
+    var
+        myInt: Integer;
+    begin
+
     end;
 
     var
