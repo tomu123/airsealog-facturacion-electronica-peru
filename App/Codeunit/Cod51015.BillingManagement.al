@@ -633,14 +633,14 @@ codeunit 51015 "EB Billing Management"
                 AddLineXMLTemp(CreateXMLTag('elec1:AllowanceTotalAmount', FormatNumber(0)))
             else
                 AddLineXMLTemp(CreateXMLTag('elec1:AllowanceTotalAmount', FormatNumber(TotalAmtDiscount + TotalDiscountLine))); //Total de Descuentos.  
-            AddLineXMLTemp(CreateXMLTag('elec1:CharGetotalAmount', FormatNumber(0))); //Sumatoria otros Cargos
+            //AddLineXMLTemp(CreateXMLTag('elec1:CharGetotalAmount', FormatNumber(0))); //Sumatoria otros Cargos
             AddLineXMLTemp(CreateXMLTag('elec1:LegalMonetaryTotal_currencyID', GetCurrencyCode(SalesInvHeader."Currency Code")));
             AddLineXMLTemp(CreateXMLTag('elec1:LineExtensionAmount', FormatNumber(GetTotalGrossSellingValue))); //Total Valor de Venta sin IGV
             if SalesInvHeader."FT Free Title" then
                 AddLineXMLTemp(CreateXMLTag('elec1:PayableAmount', FormatNumber(0))) //Importe total de la venta incluido IGV 
             else
                 AddLineXMLTemp(CreateXMLTag('elec1:PayableAmount', FormatNumber(SalesInvHeader."Amount Including VAT"))); //Importe total de la venta incluido IGV 
-            AddLineXMLTemp(CreateXMLTag('elec1:PayableRoundingAmount', Format(0)));
+            //AddLineXMLTemp(CreateXMLTag('elec1:PayableRoundingAmount', Format(0)));
             if GetTotalPrePaidPaymentAmount <> 0 then
                 AddLineXMLTemp(CreateXMLTag('elec1:PrepaidAmount', FormatNumber(GetTotalPrePaidPaymentAmount)));
             if SalesInvHeader."FT Free Title" then
@@ -657,14 +657,14 @@ codeunit 51015 "EB Billing Management"
             GetTotalAmtDiscountLine(TaxBase, TotalDiscountLine);
             AddLineXMLTemp('<elec:eLegalMonetaryTotal>');
             AddLineXMLTemp(CreateXMLTag('elec1:AllowanceTotalAmount', FormatNumber(TotalAmtDiscount + TotalDiscountLine))); //Total de Descuentos.  
-            AddLineXMLTemp(CreateXMLTag('elec1:CharGetotalAmount', FormatNumber(0))); //Sumatoria otros Cargos
+            //AddLineXMLTemp(CreateXMLTag('elec1:CharGetotalAmount', FormatNumber(0))); //Sumatoria otros Cargos
             AddLineXMLTemp(CreateXMLTag('elec1:LegalMonetaryTotal_currencyID', GetCurrencyCode(SalesCrMemoHdr."Currency Code")));
             AddLineXMLTemp(CreateXMLTag('elec1:LineExtensionAmount', FormatNumber(GetTotalGrossSellingValue))); //Total Valor de Venta sin IGV
             if SalesCrMemoHdr."FT Free Title" then
                 AddLineXMLTemp(CreateXMLTag('elec1:PayableAmount', FormatNumber(0))) //Importe total de la venta incluido IGV
             else
                 AddLineXMLTemp(CreateXMLTag('elec1:PayableAmount', FormatNumber(SalesCrMemoHdr."Amount Including VAT"))); //Importe total de la venta incluido IGV 
-            AddLineXMLTemp(CreateXMLTag('elec1:PayableRoundingAmount', Format(0)));
+            //AddLineXMLTemp(CreateXMLTag('elec1:PayableRoundingAmount', Format(0)));
             if GetTotalPrePaidPaymentAmount <> 0 then
                 AddLineXMLTemp(CreateXMLTag('elec1:PrepaidAmount', Format(GetTotalPrePaidPaymentAmount)));
             if SalesCrMemoHdr."FT Free Title" then
@@ -792,9 +792,9 @@ codeunit 51015 "EB Billing Management"
                 repeat
                     if GetTaxTypeCode(SalesInvLine."VAT Bus. Posting Group", SalesInvLine."VAT Prod. Posting Group") IN ['1000', '1016', '9995', '9997', '9998'] then begin
                         if SalesInvHeader."Prices Including VAT" then
-                            GrossSaleValue := Round((SalesInvLine.Amount + SalesInvLine."Line Discount Amount") / (1 + SalesInvLine."VAT %" / 100), 0.01)
+                            GrossSaleValue += Round((SalesInvLine.Amount + SalesInvLine."Line Discount Amount") / (1 + SalesInvLine."VAT %" / 100), 0.01)
                         else
-                            GrossSaleValue := (SalesInvLine.Amount + SalesInvLine."Line Discount Amount");
+                            GrossSaleValue += (SalesInvLine.Amount + SalesInvLine."Line Discount Amount");
                         //GrossSaleValue := GrossSaleValue + SalesInvLine."VAT Base Amount";
                     end;
                 until SalesInvLine.NEXT = 0;
