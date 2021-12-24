@@ -28,11 +28,13 @@ pageextension 51204 "EB Sales invoice subform" extends "Sales Invoice Subform"
                 ApplicationArea = All;
                 ShowMandatory = ("Line Discount %" <> 0);
             }
-            field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
-            {
-                ApplicationArea = All;
-                ShowMandatory = ("Line Discount %" <> 0);
-            }
+
+        }
+        modify("Gen. Prod. Posting Group")
+        {
+            ApplicationArea = All;
+            Visible  = true;
+            ShowMandatory = ("Line Discount %" <> 0);
         }
     }
 

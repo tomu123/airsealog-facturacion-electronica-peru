@@ -1700,12 +1700,12 @@ codeunit 51015 "EB Billing Management"
                 end;
                 if PaymentTerms."Payment Method Type" = PaymentTerms."Payment Method Type"::Credito then begin
                     SalesInvHeader.CalcFields("Amount Including VAT");
-                    AddLineXMLTemp(CreateXMLTag('elec1:RemainingAmount', FormatNumber(SalesInvHeader."Amount Including VAT")));
+                    AddLineXMLTemp(CreateXMLTag('elec1:RemainingAmount', FormatNumber(SalesInvHeader."Amount Including VAT" - SalesInvHeader."Sales Amt Detraction")));
                     AddLineXMLTemp(CreateXMLTag('elec1:CurrencyIDRemainingAmount', GetCurrencyCode(SalesInvHeader."Currency Code")));
                     AddLineXMLTemp('<elec1:lInstallmentPayment>');
                     AddLineXMLTemp('<elec2:InstallmentPayment>');
                     AddLineXMLTemp(CreateXMLTag('elec2:ID', Format(1)));
-                    AddLineXMLTemp(CreateXMLTag('elec2:Amount', FormatNumber(SalesInvHeader."Amount Including VAT")));
+                    AddLineXMLTemp(CreateXMLTag('elec2:Amount', FormatNumber(SalesInvHeader."Amount Including VAT" - SalesInvHeader."Sales Amt Detraction")));
                     AddLineXMLTemp(CreateXMLTag('elec2:CurrencyIDInstallment', GetCurrencyCode(SalesInvHeader."Currency Code")));
                     AddLineXMLTemp(CreateXMLTag('elec2:PaidDate', FormatDate(SalesInvHeader."Due Date")));
                     AddLineXMLTemp('</elec2:InstallmentPayment>');

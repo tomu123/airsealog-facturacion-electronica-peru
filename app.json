@@ -1,48 +1,40 @@
 {
-    "id": "8a2e900a-522b-42f0-9e8a-220c3e3fadf9",
-    "name": "Electronic-Billing-Uln-pe",
-    "publisher": "Union Label Net",
-    "version": "18.3.3.2021090",
-    "brief": "Powered for Union Label Net",
-    "description": "Development of extension in Business Central for customization of the Airsealog Company",
-    "privacyStatement": "",
-    "EULA": "",
-    "help": "",
-    "url": "",
-    "logo": "./Images/LogoULN.png",
-    "dependencies": [{
-            "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
-            "publisher": "Microsoft",
-            "name": "System Application",
-            "version": "17.0.0.0"
-        },
-        {
-            "id": "437dbf0e-84ff-417a-965d-ed2bb9650972",
-            "publisher": "Microsoft",
-            "name": "Base Application",
-            "version": "17.0.0.0"
-        },
-        {
-            "id": "c9d0daa8-6866-41ce-ba8e-c1ef86fa587f",
-            "publisher": "Union-Label-Net",
-            "name": "Peruvian-Localization-ULN",
-            "version": "18.0.0.0"
-        },
-        {
-            "id": "dfc88193-d50a-449f-84ea-d0b0b3e724d4",
-            "publisher": "Union Label Net",
-            "name": "Airsealog-Customization-Uln-pe",
-            "version": "18.0.0.0"
-        }
-    ],
-    "screenshots": [],
-    "platform": "17.0.0.0",
-    "idRanges": [{
-        "from": 51000,
-        "to": 59999
-    }],
-    "contextSensitiveHelpUrl": "https://Electronic-Billing-Uln-pe.com/help/",
-    "showMyCode": false,
-    "runtime": "5.0",
-    "features": ["TranslationFile"]
+	"id": "8a2e900a-522b-42f0-9e8a-220c3e3fadf9",
+	"name": "Electronic-Billing-Uln-pe",
+	"publisher": "Union Label Net",
+	"version": "18.3.3.2021102",
+	"brief": "Powered for Union Label Net",
+	"description": "Development of extension in Business Central for customization of the Airsealog Company",
+	"privacyStatement": "",
+	"EULA": "",
+	"help": "",
+	"url": "",
+	"logo": "./Images/LogoULN.png",
+	"dependencies": [
+		{
+			"id": "c9d0daa8-6866-41ce-ba8e-c1ef86fa587f",
+			"publisher": "Union-Label-Net",
+			"name": "Peruvian-Localization-ULN",
+			"version": "18.4.6.211050"
+		},
+		{
+			"id": "dfc88193-d50a-449f-84ea-d0b0b3e724d4",
+			"publisher": "Union Label Net",
+			"name": "Airsealog-Customization-Uln-pe",
+			"version": "18.4.3.210930"
+		}
+	],
+	"screenshots": [],
+	"platform": "19.0.0.0",
+	"application": "19.0.0.0",
+	"idRanges": [
+		{
+			"from": 51000,
+			"to": 59999
+		}
+	],
+	"contextSensitiveHelpUrl": "https://Electronic-Billing-Uln-pe.com/help/",
+	"showMyCode": false,
+	"runtime": "5.0",
+	"features": ["TranslationFile"]
 }
