@@ -126,6 +126,15 @@ table 51010 "EB Electronic Bill Setup"
             DataClassification = ToBeClassified;
             Caption = 'Elec. Bill Resolution No.', Comment = 'ESM="No. Resolución Fact. Electrónica"';
         }
+         field(51033; "Picture Signature"; Blob)
+        {
+            Caption = 'Picture Signature', Comment = 'ESM="Imagen firma"';
+            SubType = Bitmap;
+
+            trigger OnValidate()
+            begin
+            end;
+        }
         field(58000; "Send electronic documents to"; Text[80])
         {
             DataClassification = ToBeClassified;

@@ -73,6 +73,16 @@
           <note from="Developer" annotates="general" priority="2">ESM="Texto de respuesta"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Entry - Field EB Response Text - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 465608774 - Field 1458963553 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Send Date</source>
+          <note from="Developer" annotates="general" priority="2">ESM="Fecha de envío"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Entry - Field EB Send Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 465608774 - Field 849266883 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Send User Id.</source>
+          <note from="Developer" annotates="general" priority="2">ESM="Enviado por.."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Entry - Field EB Send User Id. - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 465608774 - Field 3489691643 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship Status</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -82,6 +92,16 @@
           <source>UnSent,Succes,In Process,Process with Errors</source>
           <note from="Developer" annotates="general" priority="2">ESM="No enviado,Enviado,En Proceso,Procesado con errores"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Entry - Field EB Ship Status - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 465608774 - Field 670424028 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status Send Doc. Cust</source>
+          <note from="Developer" annotates="general" priority="2">ESM="Estado envio doc. a cliente"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Entry - Field EB Status Send Doc. Cust - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 465608774 - Field 670424028 - Property 62802879" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open,Send</source>
+          <note from="Developer" annotates="general" priority="2">ESM="Pendiente,Enviado"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Entry - Field EB Status Send Doc. Cust - Property OptionCaption</note>
         </trans-unit>
         <trans-unit id="Table 465608774 - Field 157636111 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>XML Response</source>
@@ -233,6 +253,11 @@
           <note from="Developer" annotates="general" priority="2">ESM="Comunicación Baja"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field EB Voided Document - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3582158859 - Field 3054381508 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture Signature</source>
+          <note from="Developer" annotates="general" priority="2">ESM="Imagen firma"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table EB Electronic Bill Setup - Field Picture Signature - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3582158859 - Field 2867845939 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Send electronic documents to</source>
           <note from="Developer" annotates="general" priority="2">ESM="Send electronic documents to"</note>
@@ -363,6 +388,11 @@
           <note from="Developer" annotates="general" priority="2">ESM="Descargar archivo"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Billing Management - Method SetFileDocument - NamedType DialogTitle</note>
         </trans-unit>
+        <trans-unit id="Codeunit 263073782 - Method 2947085861 - NamedType 1968152428" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download File</source>
+          <note from="Developer" annotates="general" priority="2">ESM="Descargar archivo"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit EB Send Electronic Management - Method SetFileDocument - NamedType DialogTitle</note>
+        </trans-unit>
         <trans-unit id="Page 2776470360 - Property 2019332006" size-unit="char" translate="yes" xml:space="preserve">
           <source>New,Process,Report,Information,InternalControl</source>
           <note from="Developer" annotates="general" priority="2">ESM="Nueavo,Proceso,Reporte,Información SUNAT,Control Interno"</note>
@@ -372,6 +402,11 @@
           <source>Electronic Bill Entries</source>
           <note from="Developer" annotates="general" priority="2">ESM="Mov. Facturación Electrónica"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page EB Electronic Bill Entries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776470360 - Action 3855860622 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Change Electronic Bill Entries Status</source>
+          <note from="Developer" annotates="general" priority="2">ESM="Cambiar Status de Mov Electronicos"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page EB Electronic Bill Entries - Action ChangeElecBillEntryStatus - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2776470360 - Action 2216681011 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Download Files</source>
@@ -407,6 +442,11 @@
           <source>Resend Document</source>
           <note from="Developer" annotates="general" priority="2">ESM="Reenviar documento electrónico"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page EB Electronic Bill Entries - Action ResendDocument - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776470360 - Action 2041215804 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Resend Document Electronic Cust</source>
+          <note from="Developer" annotates="general" priority="2">ESM="Reenviar documento electrónico Cliente"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page EB Electronic Bill Entries - Action ResendDocumentCustomer - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 575776191 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Electronic Bill Setup</source>

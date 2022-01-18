@@ -11,6 +11,11 @@ pageextension 51175 "EB Posted Sales Invoice" extends "Posted Sales Invoice"
                 ApplicationArea = All;
             }
         }
+        modify(SellToEmail){
+            ApplicationArea = All;
+            Visible = true;
+            Editable = true;
+        }
     }
 
     actions

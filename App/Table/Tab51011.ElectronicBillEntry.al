@@ -82,6 +82,25 @@ table 51011 "EB Electronic Bill Entry"
             DataClassification = ToBeClassified;
             Caption = 'XML Response', Comment = 'ESM="XML de respuesta"';
         }
+        field(51016; "EB Status Send Doc. Cust"; Option)
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'Status Send Doc. Cust', Comment = 'ESM="Estado envio doc. a cliente"';
+            OptionMembers = Open,Send;
+            OptionCaption = 'Open,Send', Comment = 'ESM="Pendiente,Enviado"';
+        }
+        field(51017; "EB Send Date"; DateTime)
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'Send Date', Comment = 'ESM="Fecha de envío"';
+        }
+        field(51018; "EB Send User Id."; Code[50])
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'Send User Id.', Comment = 'ESM="Enviado por.."';
+            TableRelation = User."User Name";
+            ValidateTableRelation = false;
+        }
     }
 
     keys

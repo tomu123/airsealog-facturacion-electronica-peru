@@ -174,7 +174,52 @@ page 51020 "EB Electronic Bill Entries"
                     EBMgt.PostElectronicDocument("EB Document No.", "EB Legal Document");
                 end;
             }
+            action(ResendDocumentCustomer)
+            {
+                ApplicationArea = All;
+                Caption = 'Resend Document Electronic Cust', Comment = 'ESM="Reenviar documento electrónico Cliente"';
+                Image = SendElectronicDocument;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                Scope = "Repeater";
+
+                trigger OnAction()
+                var
+                    EBMgt: Codeunit "EB Send Electronic Management";
+                begin
+                    if "EB Ship Status" = "EB Ship Status"::Succes then
+                        EBMgt.SendElectronicDocument(Rec)
+                    else
+                        Error('Solo se pueden enviar los documentos con estado a SUNAT Enviado.');
+                end;
+            }
+            action(ChangeElecBillEntryStatus)
+            {
+                ApplicationArea = All;
+                Caption = 'Change Electronic Bill Entries Status', Comment = 'ESM="Cambiar Status de Mov Electronicos"';
+                Image = SendElectronicDocument;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                Scope = "Repeater";
+                Visible = false;
+
+                trigger OnAction()
+                var
+                    ElecBillEntry: Record "EB Electronic Bill Entry";
+                begin
+                    ElecBillEntry.Reset();
+                    if ElecBillEntry.FindSet() then begin
+                        repeat
+                            ElecBillEntry."EB Status Send Doc. Cust" := ElecBillEntry."EB Status Send Doc. Cust"::Send;
+                            ElecBillEntry.Modify();
+                        until ElecBillEntry.Next() = 0;
+                    end;
+                end;
+            }
         }
     }
 }
-
