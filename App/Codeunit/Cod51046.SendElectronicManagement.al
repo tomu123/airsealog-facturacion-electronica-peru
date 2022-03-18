@@ -41,6 +41,7 @@ codeunit 51046 "EB Send Electronic Management"
         Contact: Record Contact;
         ContactBus: Record "Contact Business Relation";
         lcSalesInvoiceHeader: Record "Sales Invoice Header";
+        lcSalesInvoiceLine: Record "Sales Invoice Line";
         lcCrediMemoHeader: Record "Sales Cr.Memo Header";
         lcCustomer: Record Customer;
         aux: Boolean;
@@ -57,6 +58,9 @@ codeunit 51046 "EB Send Electronic Management"
         Picture: Text;
         PictureText: Text;
         FileManagement: Codeunit "File Management";
+        Job: Code[20];
+        DocType: Code[3];
+        PurchaseOrderNo: Code[20];
     begin
         DocumentNo := pElectronicBilliEntry."EB Document No.";
         LegalDocument := pElectronicBilliEntry."EB Legal Document";
@@ -66,20 +70,34 @@ codeunit 51046 "EB Send Electronic Management"
             lcSalesInvoiceHeader.CalcFields("Amount Including VAT");
             lcAmountVAT := lcSalesInvoiceHeader."Amount Including VAT";
             lcDueDate := lcSalesInvoiceHeader."Due Date";
+            PurchaseOrderNo := lcSalesInvoiceHeader."Purchase order No.";
+            Job := lcSalesInvoiceHeader."Shortcut Dimension 3 Code";
             if lcSalesInvoiceHeader."Currency Code" <> '' then
                 Divisa := lcSalesInvoiceHeader."Currency Code"
             else
                 Divisa := 'PEN';
+            lcSalesInvoiceLine.Reset();
+            lcSalesInvoiceLine.SetFilter("Document No.", '=%1', DocumentNo);
+            lcSalesInvoiceLine.FindFirst();
+            if lcSalesInvoiceLine."VAT Identifier" = 'IGV18' then
+                DocType := 'FAV'
+            else
+                DocType := 'FEV';
+            if lcSalesInvoiceHeader."Sales Detraction" then
+                DocType := 'FDV';
         end else begin
             lcCrediMemoHeader.Get(DocumentNo);
             lcCustomerNo := lcCrediMemoHeader."Bill-to Customer No.";
             lcCrediMemoHeader.CalcFields("Amount Including VAT");
             lcAmountVAT := lcCrediMemoHeader."Amount Including VAT";
             lcDueDate := lcCrediMemoHeader."Due Date";
+            PurchaseOrderNo := lcCrediMemoHeader."Purchase order No.";
+            Job := lcCrediMemoHeader."Shortcut Dimension 3 Code";
             if lcCrediMemoHeader."Currency Code" <> '' then
                 Divisa := lcCrediMemoHeader."Currency Code"
             else
                 Divisa := 'PEN';
+            DocType := 'FCN';
         end;
 
 
@@ -116,18 +134,22 @@ codeunit 51046 "EB Send Electronic Management"
         Company.Get();
         if Company."E-Mail" <> '' then
             MailsCC.Add(Company."E-Mail");
+        MailsCC.Add('acalderon@airsea-log.com');
+        MailsCC.Add('lrojas@airsea-log.com');
+        MailsCC.Add('lwiddup@airsea-log.com');
         lcLegalDocument.Get(lcLegalDocument."Option Type"::"SUNAT Table", '10', LegalDocument);
 
         SMTPSetup.Get();
         EBElectronicSetup.Get();
         if EBElectronicSetup."Send electronic documents to" <> '' then
             Mails.Add(EBElectronicSetup."Send electronic documents to");
-        SMTPMail.CreateMessage('', SMTPSetup."User ID", Mails, StrSubstNo('Has recibido una ' + lcLegalDocument.Description + ' Nro. %1 de AIRSEALOGISTICS SAC', DocumentNo), '');
+        SMTPMail.CreateMessage('', SMTPSetup."User ID", Mails, StrSubstNo('[ediDocManager SHP %1 %2]', DocType, Job), '');
         SMTPMail.AddCC(MailsCC);
         SMTPMail.AppendBody('<p><font face="Arial">Estimado <b>' + lcCustomer.Name + '</b>:</font><br /><br /></p>' +
         '<p><font face="Arial">Te ha llegado una ' + lcLegalDocument.Description + ' de <b> AIRSEALOGISTICS SAC </b> con las siguientes características:</font><br /><br /></p>');
 
         SMTPMail.AppendBody('<p style="padding-left:20px;"><font face="Arial"> <b>N° de ' + lcLegalDocument.Description + '  : </b> ' + DocumentNo + '</font></p>');
+        SMTPMail.AppendBody('<p style="padding-left:20px;"><font face="Arial"> <b>Ref. / Orden Compra  : </b> ' + PurchaseOrderNo + '</font></p>');
         SMTPMail.AppendBody('<p style="padding-left:20px;"><font face="Arial"> <b>Vencimiento    : </b>' + Format(lcDueDate, 0, '<Day,2>-<Month,2>-<Year4>') + '</font></p>');
 
         SMTPMail.AppendBody('<p style="padding-left:20px;"><font face="Arial"> <b>Importe total  : ' + Divisa + '</b> ' + FormatNumber(lcAmountVAT) + '</font><br /><br /></p>');
